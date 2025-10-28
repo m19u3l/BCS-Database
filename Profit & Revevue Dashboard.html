@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SD-BCS Overview Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .card h3 { color: #333; margin-top: 0; }
+        .metric-value { font-size: 2.5em; font-weight: bold; color: #007bff; }
+        .status-list li { list-style: none; padding: 5px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <h1>🏠 Project & Revenue Summary</h1>
+
+    <div class="dashboard-grid" id="summary-metrics">
+        <div class="card">
+            <h3>Total Projects</h3>
+            <div class="metric-value" id="total-projects">...</div>
+            <p>Total unique work orders.</p>
+        </div>
+        <div class="card">
+            <h3>Total Invoiced (YTD)</h3>
+            <div class="metric-value" id="total-invoiced">$...</div>
+            <p>Gross revenue from all invoices.</p>
+        </div>
+        <div class="card">
+            <h3>Pending Estimates</h3>
+            <div class="metric-value" id="pending-estimates">...</div>
+            <p>Estimates awaiting client approval.</p>
+        </div>
+        <div class="card">
+            <h3>Highest Priority Jobs</h3>
+            <div class="metric-value" id="high-priority">...</div>
+            <p>Jobs marked as Critical/High.</p>
+        </div>
+    </div>
+
+    <h2>📊 Status Breakdown</h2>
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Dryout Statuses</h3>
+            <ul id="dryout-status-list" class="status-list">
+                <li>Loading...</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3>Top 5 Clients (Revenue)</h3>
+            <ul id="top-clients-list" class="status-list">
+                <li>Loading...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/v1/dashboard');
+                const data = await response.json();
+
+                // 1. Populate Summary Metrics
+                document.getElementById('total-projects').textContent = data.summary.total_projects;
+                document.getElementById('total-invoiced').textContent = '$' + (data.summary.total_invoiced_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+                
+                // 2. Populate Dryout Statuses
+                const statusList = document.getElementById('dryout-status-list');
+                statusList.innerHTML = '';
+                data.projects_by_status.forEach(status => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<span>${status.status}:</span> <strong>${status.count}</strong>`;
+                    statusList.appendChild(listItem);
+                });
+
+                // 3. Populate Top Clients
+                const clientsList = document.getElementById('top-clients-list');
+                clientsList.innerHTML = '';
+                data.top_clients_revenue.forEach(client => {
+                    const listItem = document.createElement('li');
+                    const revenue = (client.total_revenue || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
+                    listItem.innerHTML = `<span>${client.client_name}:</span> <strong>$${revenue}</strong>`;
+                    clientsList.appendChild(listItem);
+                });
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                document.getElementById('summary-metrics').innerHTML = '<p style="color: red;">Failed to load dashboard data. Is the backend server running?</p>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+💾 Database and Core Structure FilesThese files define the tables and data fields for comprehensive project documentation, which is essential for working with insurance carriers.File NameSummary of ContentRole in SystemEnhanced Database Schema for Remediation2.txtA detailed SQL schema defining tables like remediation_dryout, moisture_readings, project_photos, and the core price_list.This ensures you capture all required data points (loss category, affected areas, readings, etc.) to justify your work to insurance.db.js - Database Setup.txtThe complete JavaScript file that initializes your SQLite database with all the necessary tables from the schema above
+
+
+
+
+🛠️ Detailed Scope Capture (Reconstruction/Demo)This is the API route that ensures every step of demolition and reconstruction is documented with trade-by-trade measurements and specifics.File NameSummary of ContentRole in Systemroutes:remediation-reconstruction.js - Complete2.txtAn Express/Node.js route that handles saving and retrieving comprehensive remediation and reconstruction data.
+
+
+
+
+💰 Xactimate-Style Quoting EngineThese files enable the automatic calculation of prices based on the detailed scope of work you captured above.File NameSummary of ContentRole in SystemComplete Xactimate-Style Price List Database8.txtSQL definitions for the price_list table, populated with categories, line codes, labor costs, material costs, and equipment costs.Crucial for Pricing: This is your core Xactimate-style price library. It allows you to take a measurement (e.g., 500 SF of drywall) and automatically calculate the total cost using pre-defined rates, including Overhead & Profit (O&P) calculations.Building Care Solutions - Quote Generator.txtA React frontend component for generating quotes using the detailed scope data and the new price list.The Quote Tool: This demonstrates how the user interface interacts with the detailed scope and the price list to build the final, professional quote

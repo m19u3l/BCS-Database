@@ -1,0 +1,594 @@
+-- ============================================
+-- XACTIMATE-STYLE PRICING DATABASE
+-- Building Care Solutions - San Diego, CA
+-- ============================================
+
+-- Main Price List Table
+CREATE TABLE IF NOT EXISTS price_list (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  line_code TEXT UNIQUE NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  subcategory TEXT,
+  unit_of_measure TEXT NOT NULL,
+  labor_cost REAL DEFAULT 0,
+  material_cost REAL DEFAULT 0,
+  equipment_cost REAL DEFAULT 0,
+  unit_price REAL NOT NULL,
+  notes TEXT,
+  active BOOLEAN DEFAULT TRUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Price History Table (track changes over time)
+CREATE TABLE IF NOT EXISTS price_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  line_code TEXT NOT NULL,
+  old_price REAL,
+  new_price REAL,
+  changed_by TEXT,
+  change_reason TEXT,
+  changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (line_code) REFERENCES price_list(line_code)
+);
+
+-- Categories Table
+CREATE TABLE IF NOT EXISTS price_categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  category_code TEXT UNIQUE NOT NULL,
+  category_name TEXT NOT NULL,
+  sort_order INTEGER DEFAULT 0
+);
+
+-- ============================================
+-- POPULATE CATEGORIES
+-- ============================================
+INSERT INTO price_categories (category_code, category_name, sort_order) VALUES
+('EMRG', 'Emergency Response & Inspection', 1),
+('CONT', 'Contents Manipulation & Protection', 2),
+('EXTR', 'Water Extraction & Emergency Services', 3),
+('DEMO', 'Demolition', 4),
+('EQUIP', 'Drying Equipment & Monitoring', 5),
+('CLEAN', 'Cleaning & Treatment', 6),
+('HAUL', 'Debris Removal & Disposal', 7),
+('CARP', 'Rough Carpentry & Framing', 8),
+('PLMB', 'Plumbing', 9),
+('ELEC', 'Electrical', 10),
+('HVAC', 'HVAC', 11),
+('INSUL', 'Insulation', 12),
+('DWALL', 'Drywall', 13),
+('PAINT', 'Painting', 14),
+('TRIM', 'Trim & Millwork', 15),
+('DOOR', 'Doors & Windows', 16),
+('FLOOR', 'Flooring', 17),
+('TILE', 'Tile Work', 18),
+('CAB', 'Cabinetry & Countertops', 19),
+('SPEC', 'Specialty Items', 20),
+('FINAL', 'Final Cleanup & Completion', 21);
+
+-- ============================================
+-- PHASE 1: EMERGENCY RESPONSE & INSPECTION
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('EMRG-DISP', 'Emergency Dispatch Fee', 'EMRG', 'Response', 'EA', 75.00, 0.00, 0.00, 75.00, 'Flat fee per emergency call'),
+('EMRG-AFHR', 'After Hours Response Fee', 'EMRG', 'Response', 'EA', 150.00, 0.00, 0.00, 150.00, 'Weeknights after 6pm'),
+('EMRG-WKND', 'Weekend/Holiday Response Fee', 'EMRG', 'Response', 'EA', 200.00, 0.00, 0.00, 200.00, 'Saturdays, Sundays, Holidays'),
+('EMRG-TRVL', 'Travel Time to Site', 'EMRG', 'Response', 'HR', 65.00, 0.00, 0.00, 65.00, 'Portal to portal'),
+('EMRG-MILE', 'Mileage - Vehicle Wear & Tear', 'EMRG', 'Response', 'MI', 0.67, 0.00, 0.00, 0.67, 'IRS standard rate + wear'),
+('INSP-SITE', 'Site Inspection & Assessment', 'EMRG', 'Inspection', 'HR', 85.00, 0.00, 0.00, 85.00, 'Initial walkthrough'),
+('INSP-MMAP', 'Moisture Mapping', 'EMRG', 'Inspection', 'EA', 125.00, 0.00, 15.00, 140.00, 'Complete moisture survey'),
+('INSP-THRM', 'Thermal Imaging', 'EMRG', 'Inspection', 'EA', 95.00, 0.00, 25.00, 120.00, 'IR camera scan'),
+('INSP-PHOT', 'Photo Documentation', 'EMRG', 'Inspection', 'HR', 55.00, 0.00, 0.00, 55.00, 'Comprehensive photos'),
+('INSP-MSTR', 'Moisture Meter Readings', 'EMRG', 'Inspection', 'EA', 35.00, 0.00, 5.00, 40.00, 'Per reading session'),
+('INSP-HYGR', 'Hygro-Thermometer Readings', 'EMRG', 'Inspection', 'EA', 25.00, 0.00, 5.00, 30.00, 'Temperature & humidity'),
+('INSP-REPT', 'Written Inspection Report', 'EMRG', 'Inspection', 'EA', 125.00, 0.00, 0.00, 125.00, 'Detailed documentation'),
+('INSP-ESTM', 'Estimate Preparation', 'EMRG', 'Inspection', 'HR', 75.00, 0.00, 0.00, 75.00, 'Quote creation time');
+
+-- ============================================
+-- PHASE 2: CONTENTS MANIPULATION & PROTECTION
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('CONT-FRSM', 'Move Furniture - Small Item', 'CONT', 'Moving', 'EA', 8.00, 0.00, 0.00, 8.00, 'Chair, end table, lamp'),
+('CONT-FRMD', 'Move Furniture - Medium Item', 'CONT', 'Moving', 'EA', 15.00, 0.00, 0.00, 15.00, 'Dining chair, nightstand'),
+('CONT-FRLG', 'Move Furniture - Large Item', 'CONT', 'Moving', 'EA', 35.00, 0.00, 0.00, 35.00, 'Sofa, dresser, desk'),
+('CONT-FROS', 'Move Furniture - Oversized Item', 'CONT', 'Moving', 'EA', 65.00, 0.00, 0.00, 65.00, 'Sectional, armoire, piano'),
+('CONT-PROT', 'Protect Furniture In Place', 'CONT', 'Protection', 'EA', 5.00, 2.50, 0.00, 7.50, 'Plastic wrap/coverage'),
+('CONT-STCK', 'Stack & Store On-Site', 'CONT', 'Moving', 'EA', 6.00, 0.00, 0.00, 6.00, 'Per item stacked'),
+('CONT-RELC', 'Move to Unaffected Area', 'CONT', 'Moving', 'EA', 10.00, 0.00, 0.00, 10.00, 'Per item relocated'),
+('CONT-REFRG', 'Move Refrigerator', 'CONT', 'Appliances', 'EA', 45.00, 0.00, 0.00, 45.00, 'Disconnect/reconnect'),
+('CONT-WASH', 'Move Washer', 'CONT', 'Appliances', 'EA', 40.00, 0.00, 0.00, 40.00, 'Disconnect/reconnect'),
+('CONT-DRYR', 'Move Dryer', 'CONT', 'Appliances', 'EA', 40.00, 0.00, 0.00, 40.00, 'Disconnect/reconnect'),
+('CONT-STOV', 'Move Stove/Range', 'CONT', 'Appliances', 'EA', 50.00, 0.00, 0.00, 50.00, 'Gas/electric disconnect'),
+('CONT-DISH', 'Move Dishwasher', 'CONT', 'Appliances', 'EA', 55.00, 0.00, 0.00, 55.00, 'Disconnect/reconnect'),
+('CONT-PACK', 'Pack Small Items', 'CONT', 'Packing', 'BOX', 12.00, 3.50, 0.00, 15.50, 'Per box packed'),
+('CONT-LABL', 'Label & Inventory', 'CONT', 'Packing', 'HR', 45.00, 2.00, 0.00, 47.00, 'Detailed inventory'),
+('CONT-BARR', 'Protection Barrier Setup', 'CONT', 'Protection', 'LF', 3.50, 1.25, 0.00, 4.75, 'Containment walls'),
+('CONT-PLST', 'Plastic Sheeting Installation', 'CONT', 'Protection', 'SF', 0.35, 0.15, 0.00, 0.50, '6mil poly'),
+('CONT-FLPR', 'Floor Protection - Ram Board', 'CONT', 'Protection', 'SF', 0.45, 0.35, 0.00, 0.80, 'Heavy duty protection'),
+('CONT-CRPT', 'Floor Protection - Carpet Shield', 'CONT', 'Protection', 'SF', 0.35, 0.25, 0.00, 0.60, 'Adhesive film'),
+('CONT-DOOR', 'Doorway Protection', 'CONT', 'Protection', 'EA', 8.00, 3.00, 0.00, 11.00, 'Zipper or frame'),
+('CONT-HVAC', 'HVAC Register Coverage', 'CONT', 'Protection', 'EA', 4.00, 1.50, 0.00, 5.50, 'Seal registers'),
+('CONT-STOR', 'Temporary Storage Setup', 'CONT', 'Storage', 'HR', 55.00, 0.00, 0.00, 55.00, 'On-site organization');
+
+-- ============================================
+-- PHASE 3: WATER EXTRACTION & EMERGENCY
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('EXTR-WTHR', 'Water Extraction - Per Hour', 'EXTR', 'Extraction', 'HR', 75.00, 0.00, 45.00, 120.00, 'Truck mount or portable'),
+('EXTR-TRCK', 'Truck Mount Extraction', 'EXTR', 'Extraction', 'HR', 85.00, 0.00, 65.00, 150.00, 'High-powered extraction'),
+('EXTR-PORT', 'Portable Extraction Unit', 'EXTR', 'Extraction', 'HR', 65.00, 0.00, 35.00, 100.00, 'Small areas'),
+('EXTR-WVAC', 'Wet Vacuum Services', 'EXTR', 'Extraction', 'HR', 55.00, 0.00, 25.00, 80.00, 'Manual extraction'),
+('EXTR-SEWG', 'Sewage Extraction (Cat 2/3)', 'EXTR', 'Extraction', 'HR', 125.00, 15.00, 65.00, 205.00, 'Hazmat premium'),
+('EXTR-PUMP', 'Submersible Pump Rental', 'EXTR', 'Equipment', 'DAY', 15.00, 0.00, 35.00, 50.00, 'Per day rental'),
+('EMRG-BRDU', 'Emergency Board-Up', 'EXTR', 'Emergency', 'SF', 2.50, 1.75, 0.00, 4.25, 'Secure openings'),
+('EMRG-TARP', 'Roof Tarp Installation', 'EXTR', 'Emergency', 'SF', 1.85, 0.95, 0.00, 2.80, 'Temporary waterproofing'),
+('EMRG-POWR', 'Emergency Power Generation', 'EXTR', 'Emergency', 'DAY', 45.00, 0.00, 85.00, 130.00, 'Generator rental'),
+('EMRG-LITE', 'Temporary Lighting Setup', 'EXTR', 'Emergency', 'EA', 15.00, 0.00, 8.00, 23.00, 'Work lights'),
+('EMRG-PLMB', 'Emergency Plumbing Shut-Off', 'EXTR', 'Emergency', 'EA', 85.00, 0.00, 0.00, 85.00, 'Stop water source');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - FLOORING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-CRPT', 'Remove Carpet', 'DEMO', 'Flooring', 'SF', 0.45, 0.00, 0.05, 0.50, 'Carpet only'),
+('DEMO-CPAD', 'Remove Carpet Pad', 'DEMO', 'Flooring', 'SF', 0.35, 0.00, 0.05, 0.40, 'Pad removal'),
+('DEMO-TACK', 'Remove Tack Strips', 'DEMO', 'Flooring', 'LF', 0.65, 0.00, 0.05, 0.70, 'Perimeter strips'),
+('DEMO-VNYL', 'Remove Vinyl Flooring', 'DEMO', 'Flooring', 'SF', 0.55, 0.00, 0.05, 0.60, 'Glued vinyl'),
+('DEMO-SHVN', 'Remove Sheet Vinyl', 'DEMO', 'Flooring', 'SF', 0.65, 0.00, 0.05, 0.70, 'Sheet goods'),
+('DEMO-VCT', 'Remove VCT Tile', 'DEMO', 'Flooring', 'SF', 0.75, 0.00, 0.05, 0.80, 'Vinyl composition tile'),
+('DEMO-CERM', 'Remove Ceramic Tile', 'DEMO', 'Flooring', 'SF', 1.85, 0.00, 0.15, 2.00, 'Floor tile'),
+('DEMO-HDWD', 'Remove Hardwood Flooring', 'DEMO', 'Flooring', 'SF', 1.25, 0.00, 0.10, 1.35, 'Nail down hardwood'),
+('DEMO-LMNT', 'Remove Laminate Flooring', 'DEMO', 'Flooring', 'SF', 0.85, 0.00, 0.05, 0.90, 'Floating floor'),
+('DEMO-SUBF', 'Remove Subfloor', 'DEMO', 'Flooring', 'SF', 1.45, 0.00, 0.15, 1.60, 'Plywood/OSB');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - WALLS
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-DW2', 'Remove Drywall - 2ft Height', 'DEMO', 'Walls', 'SF', 0.65, 0.00, 0.05, 0.70, 'Flood cut 2ft'),
+('DEMO-DW4', 'Remove Drywall - 4ft Height', 'DEMO', 'Walls', 'SF', 0.55, 0.00, 0.05, 0.60, 'Flood cut 4ft'),
+('DEMO-DWFL', 'Remove Drywall - Full Height', 'DEMO', 'Walls', 'SF', 0.45, 0.00, 0.05, 0.50, 'Floor to ceiling'),
+('DEMO-PLST', 'Remove Plaster & Lath', 'DEMO', 'Walls', 'SF', 1.85, 0.00, 0.15, 2.00, 'Heavy demo'),
+('DEMO-PANL', 'Remove Wall Paneling', 'DEMO', 'Walls', 'SF', 0.75, 0.00, 0.05, 0.80, 'Wood paneling'),
+('DEMO-WAIN', 'Remove Wainscoting', 'DEMO', 'Walls', 'LF', 2.25, 0.00, 0.10, 2.35, 'Per linear foot'),
+('DEMO-TBRD', 'Remove Tile Backer Board', 'DEMO', 'Walls', 'SF', 0.95, 0.00, 0.10, 1.05, 'Cement board');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - CEILING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-CEIL', 'Remove Drywall Ceiling', 'DEMO', 'Ceiling', 'SF', 0.85, 0.00, 0.10, 0.95, 'Ceiling drywall'),
+('DEMO-CPLST', 'Remove Plaster Ceiling', 'DEMO', 'Ceiling', 'SF', 2.25, 0.00, 0.20, 2.45, 'Plaster ceiling'),
+('DEMO-ACT', 'Remove Acoustic Ceiling Tile', 'DEMO', 'Ceiling', 'SF', 0.45, 0.00, 0.05, 0.50, 'Drop ceiling tiles'),
+('DEMO-GRID', 'Remove Ceiling Grid', 'DEMO', 'Ceiling', 'SF', 0.55, 0.00, 0.05, 0.60, 'T-bar grid'),
+('DEMO-POPC', 'Remove Popcorn Texture', 'DEMO', 'Ceiling', 'SF', 1.25, 0.00, 0.15, 1.40, 'Scrape popcorn');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - TRIM & MILLWORK
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-BASE', 'Remove Baseboard', 'DEMO', 'Trim', 'LF', 0.65, 0.00, 0.00, 0.65, 'Base trim'),
+('DEMO-SHOE', 'Remove Shoe Molding', 'DEMO', 'Trim', 'LF', 0.45, 0.00, 0.00, 0.45, 'Quarter round'),
+('DEMO-DCAS', 'Remove Door Casing', 'DEMO', 'Trim', 'EA', 8.50, 0.00, 0.00, 8.50, 'Per opening'),
+('DEMO-WCAS', 'Remove Window Casing', 'DEMO', 'Trim', 'EA', 7.50, 0.00, 0.00, 7.50, 'Per window'),
+('DEMO-CRWN', 'Remove Crown Molding', 'DEMO', 'Trim', 'LF', 1.25, 0.00, 0.00, 1.25, 'Crown'),
+('DEMO-CHRR', 'Remove Chair Rail', 'DEMO', 'Trim', 'LF', 0.85, 0.00, 0.00, 0.85, 'Chair rail');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - CABINETS & FIXTURES
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-BCAB', 'Remove Base Cabinets', 'DEMO', 'Cabinets', 'LF', 8.50, 0.00, 0.00, 8.50, 'Base cabinets'),
+('DEMO-UCAB', 'Remove Upper Cabinets', 'DEMO', 'Cabinets', 'LF', 7.50, 0.00, 0.00, 7.50, 'Wall cabinets'),
+('DEMO-CTOP', 'Remove Countertop', 'DEMO', 'Cabinets', 'LF', 6.50, 0.00, 0.00, 6.50, 'Counter removal'),
+('DEMO-VNTY', 'Remove Vanity', 'DEMO', 'Cabinets', 'EA', 45.00, 0.00, 0.00, 45.00, 'Bathroom vanity'),
+('DEMO-MEDC', 'Remove Medicine Cabinet', 'DEMO', 'Cabinets', 'EA', 25.00, 0.00, 0.00, 25.00, 'Med cabinet'),
+('DEMO-MIRR', 'Remove Mirrors', 'DEMO', 'Cabinets', 'SF', 2.50, 0.00, 0.00, 2.50, 'Wall mirrors'),
+('DEMO-SHLF', 'Remove Shelving', 'DEMO', 'Cabinets', 'LF', 3.50, 0.00, 0.00, 3.50, 'Shelf removal');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - DOORS & WINDOWS
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-DINT', 'Remove Interior Door & Frame', 'DEMO', 'Doors', 'EA', 35.00, 0.00, 0.00, 35.00, 'Interior door'),
+('DEMO-DEXT', 'Remove Exterior Door & Frame', 'DEMO', 'Doors', 'EA', 55.00, 0.00, 0.00, 55.00, 'Exterior door'),
+('DEMO-WIND', 'Remove Window', 'DEMO', 'Windows', 'EA', 45.00, 0.00, 0.00, 45.00, 'Standard window'),
+('DEMO-SLDR', 'Remove Sliding Glass Door', 'DEMO', 'Doors', 'EA', 85.00, 0.00, 0.00, 85.00, 'Patio door'),
+('DEMO-CLBI', 'Remove Closet Doors - Bi-Fold', 'DEMO', 'Doors', 'PR', 25.00, 0.00, 0.00, 25.00, 'Per pair'),
+('DEMO-CLSL', 'Remove Closet Doors - Sliding', 'DEMO', 'Doors', 'PR', 35.00, 0.00, 0.00, 35.00, 'Per pair');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - INSULATION
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-IBAT', 'Remove Batt Insulation', 'DEMO', 'Insulation', 'SF', 0.45, 0.00, 0.05, 0.50, 'Dry batt'),
+('DEMO-IBLO', 'Remove Blown Insulation', 'DEMO', 'Insulation', 'SF', 0.65, 0.00, 0.15, 0.80, 'Loose fill'),
+('DEMO-IWET', 'Remove Wet Insulation (Cat 2/3)', 'DEMO', 'Insulation', 'SF', 0.95, 0.00, 0.20, 1.15, 'Contaminated');
+
+-- ============================================
+-- PHASE 4: DEMOLITION - SPECIALTY
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DEMO-NAIL', 'Remove Nails/Staples from Studs', 'DEMO', 'Specialty', 'LF', 0.55, 0.00, 0.05, 0.60, 'Clean studs'),
+('DEMO-ADHS', 'Remove Adhesive from Subfloor', 'DEMO', 'Specialty', 'SF', 1.25, 0.25, 0.15, 1.65, 'Scrape adhesive'),
+('DEMO-LMBR', 'Cut/Remove Damaged Lumber', 'DEMO', 'Specialty', 'LF', 2.50, 0.00, 0.25, 2.75, 'Structural cuts'),
+('DEMO-CONC', 'Saw Cut Concrete', 'DEMO', 'Specialty', 'LF', 4.50, 0.50, 1.25, 6.25, 'Concrete sawing');
+
+-- ============================================
+-- PHASE 5: DRYING EQUIPMENT & MONITORING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('EQUIP-AMOV', 'Air Mover - Per Day', 'EQUIP', 'Drying', 'DAY', 8.00, 0.00, 18.00, 26.00, 'Daily rental + power'),
+('EQUIP-DEHM', 'Dehumidifier - Per Day', 'EQUIP', 'Drying', 'DAY', 10.00, 0.00, 35.00, 45.00, 'LGR dehumidifier'),
+('EQUIP-HEPA', 'HEPA Air Scrubber - Per Day', 'EQUIP', 'Air Quality', 'DAY', 8.00, 12.00, 25.00, 45.00, 'Includes filters'),
+('EQUIP-NEGR', 'Negative Air Machine - Per Day', 'EQUIP', 'Air Quality', 'DAY', 10.00, 15.00, 35.00, 60.00, 'Containment'),
+('EQUIP-DESI', 'Desiccant Dehumidifier - Per Day', 'EQUIP', 'Drying', 'DAY', 15.00, 0.00, 65.00, 80.00, 'Large commercial'),
+('EQUIP-AXIL', 'Axial Fan - Per Day', 'EQUIP', 'Drying', 'DAY', 5.00, 0.00, 12.00, 17.00, 'Circulation fan'),
+('EQUIP-INJD', 'Injecti-Dry System Setup', 'EQUIP', 'Specialty', 'EA', 45.00, 0.00, 85.00, 130.00, 'Wall cavity drying'),
+('EQUIP-WCAV', 'Wall Cavity Drying System', 'EQUIP', 'Specialty', 'DAY', 12.00, 0.00, 25.00, 37.00, 'Per day'),
+('MNTR-VISI', 'Daily Site Visit', 'EQUIP', 'Monitoring', 'EA', 55.00, 0.00, 0.00, 55.00, 'Daily monitoring'),
+('MNTR-READ', 'Moisture Readings - Per Visit', 'EQUIP', 'Monitoring', 'EA', 35.00, 0.00, 5.00, 40.00, 'Complete readings'),
+('MNTR-ADJT', 'Equipment Adjustment', 'EQUIP', 'Monitoring', 'HR', 45.00, 0.00, 0.00, 45.00, 'Reposition equipment'),
+('MNTR-PHOT', 'Photo Documentation - Per Visit', 'EQUIP', 'Monitoring', 'EA', 25.00, 0.00, 0.00, 25.00, 'Progress photos'),
+('MNTR-LOG', 'Moisture Log Documentation', 'EQUIP', 'Monitoring', 'EA', 35.00, 0.00, 0.00, 35.00, 'Written logs'),
+('EQUIP-PICK', 'Equipment Pickup/Removal', 'EQUIP', 'Pickup', 'TRIP', 65.00, 0.00, 0.00, 65.00, 'Per trip'),
+('EQUIP-CLEN', 'Equipment Cleaning & Sanitization', 'EQUIP', 'Pickup', 'HR', 45.00, 8.00, 0.00, 53.00, 'After pickup');
+
+-- ============================================
+-- PHASE 6: CLEANING & TREATMENT
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('CLEN-ANTM', 'Antimicrobial Application', 'CLEAN', 'Treatment', 'SF', 0.25, 0.15, 0.05, 0.45, 'Per square foot'),
+('CLEN-ANTF', 'Anti-Fungal Treatment', 'CLEAN', 'Treatment', 'SF', 0.30, 0.20, 0.05, 0.55, 'Mold prevention'),
+('CLEN-DIS2', 'Disinfectant Application - Cat 2', 'CLEAN', 'Treatment', 'SF', 0.35, 0.18, 0.05, 0.58, 'Gray water'),
+('CLEN-DIS3', 'Disinfectant Application - Cat 3', 'CLEAN', 'Treatment', 'SF', 0.55, 0.25, 0.10, 0.90, 'Black water'),
+('ODOR-HYDR', 'Hydroxyl Generator - Per Day', 'CLEAN', 'Deodorization', 'DAY', 8.00, 0.00, 35.00, 43.00, 'Safe odor removal'),
+('ODOR-OZON', 'Ozone Treatment - Per Hour', 'CLEAN', 'Deodorization', 'HR', 15.00, 0.00, 25.00, 40.00, 'Unoccupied only'),
+('ODOR-THRM', 'Thermal Fogging Treatment', 'CLEAN', 'Deodorization', 'EA', 125.00, 35.00, 45.00, 205.00, 'Per treatment'),
+('ODOR-ULV', 'ULV Fogging Treatment', 'CLEAN', 'Deodorization', 'EA', 95.00, 28.00, 35.00, 158.00, 'Per treatment'),
+('ODOR-ENCAP', 'Odor Encapsulant Application', 'CLEAN', 'Deodorization', 'SF', 0.35, 0.22, 0.03, 0.60, 'Sealer'),
+('CLEN-HEPF', 'HEPA Vacuum Floors', 'CLEAN', 'Cleaning', 'SF', 0.18, 0.00, 0.05, 0.23, 'Floor vacuuming'),
+('CLEN-HEPW', 'HEPA Vacuum Walls', 'CLEAN', 'Cleaning', 'SF', 0.22, 0.00, 0.05, 0.27, 'Wall vacuuming'),
+('CLEN-STUD', 'Wipe Down Studs/Framing', 'CLEAN', 'Cleaning', 'LF', 0.45, 0.08, 0.00, 0.53, 'Clean framing'),
+('CLEN-SUBF', 'Clean Subfloor', 'CLEAN', 'Cleaning', 'SF', 0.28, 0.05, 0.00, 0.33, 'Subfloor cleaning'),
+('CLEN-DETL', 'Detail Cleaning - Per Hour', 'CLEAN', 'Cleaning', 'HR', 45.00, 8.00, 0.00, 53.00, 'Detailed cleaning');
+
+-- ============================================
+-- PHASE 7: DEBRIS REMOVAL & DISPOSAL
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('HAUL-LOAD', 'Load Debris', 'HAUL', 'Labor', 'CY', 12.00, 0.00, 0.00, 12.00, 'Per cubic yard'),
+('HAUL-HAUL', 'Haul Debris', 'HAUL', 'Transport', 'CY', 18.00, 0.00, 5.00, 23.00, 'To dump'),
+('HAUL-DUMP', 'Dump Fees', 'HAUL', 'Disposal', 'TON', 0.00, 75.00, 0.00, 75.00, 'Landfill fees'),
+('HAUL-DSTR', 'Dumpster Rental - Per Week', 'HAUL', 'Container', 'WK', 0.00, 0.00, 425.00, 425.00, '20 yard dumpster'),
+('HAUL-CRPT', 'Carpet Disposal', 'HAUL', 'Disposal', 'CY', 15.00, 12.00, 0.00, 27.00, 'Special handling'),
+('HAUL-DWAL', 'Drywall Disposal', 'HAUL', 'Disposal', 'CY', 12.00, 8.00, 0.00, 20.00, 'Gypsum disposal'),
+('HAUL-GNRL', 'General Construction Debris', 'HAUL', 'Disposal', 'CY', 14.00, 10.00, 0.00, 24.00, 'Mixed debris'),
+('HAUL-HAZM', 'Hazardous Material Disposal', 'HAUL', 'Disposal', 'EA', 35.00, 65.00, 0.00, 100.00, 'Per item');
+
+-- ============================================
+-- PHASE 8: ROUGH CARPENTRY & FRAMING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('CARP-2X4', 'Install 2x4 Stud', 'CARP', 'Framing', 'LF', 1.85, 0.95, 0.10, 2.90, 'Per linear foot'),
+('CARP-2X6', 'Install 2x6 Stud', 'CARP', 'Framing', 'LF', 2.25, 1.45, 0.10, 3.80, 'Per linear foot'),
+('CARP-HDDR', 'Install Header', 'CARP', 'Framing', 'LF', 3.50, 2.85, 0.15, 6.50, 'Door/window header'),
+('CARP-BLOK', 'Install Blocking', 'CARP', 'Framing', 'LF', 2.15, 0.85, 0.10, 3.10, 'Between studs'),
+('CARP-PLAT', 'Install Plates', 'CARP', 'Framing', 'LF', 1.95, 1.05, 0.10, 3.10, 'Top/bottom plates'),
+('CARP-SIST', 'Sistering Joists', 'CARP', 'Structural', 'LF', 3.85, 2.25, 0.15, 6.25, 'Reinforce joists'),
+('CARP-RSUB', 'Repair Subfloor', 'CARP', 'Subfloor', 'SF', 2.25, 1.85, 0.15, 4.25, 'Patch subfloor'),
+('CARP-ISUB', 'Install Subfloor', 'CARP', 'Subfloor', 'SF', 1.85, 1.45, 0.10, 3.40, 'New subfloor');
+
+-- ============================================
+-- PHASE 8: PLUMBING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('PLMB-RWTR', 'Rough-In Water Supply Lines', 'PLMB', 'Rough-In', 'EA', 125.00, 45.00, 15.00, 185.00, 'Per fixture'),
+('PLMB-RDRN', 'Rough-In Drain Lines', 'PLMB', 'Rough-In', 'EA', 165.00, 65.00, 20.00, 250.00, 'Per fixture'),
+('PLMB-SHTO', 'Install Shut-Off Valves', 'PLMB', 'Rough-In', 'EA', 35.00, 18.00, 0.00, 53.00, 'Per valve'),
+('PLMB-TEST', 'Pressure Test Plumbing', 'PLMB', 'Testing', 'EA', 85.00, 0.00, 25.00, 110.00, 'System test'),
+('PLMB-TOLT', 'Install Toilet', 'PLMB', 'Fixtures', 'EA', 125.00, 0.00, 15.00, 140.00, 'Labor only'),
+('PLMB-SINK', 'Install Sink/Faucet', 'PLMB', 'Fixtures', 'EA', 145.00, 0.00, 15.00, 160.00, 'Kitchen sink'),
+('PLMB-VFAC', 'Install Vanity Faucet', 'PLMB', 'Fixtures', 'EA', 95.00, 0.00, 10.00, 105.00, 'Bathroom faucet'),
+('PLMB-SHVL', 'Install Tub/Shower Valve', 'PLMB', 'Fixtures', 'EA', 185.00, 0.00, 20.00, 205.00, 'Valve rough-in'),
+('PLMB-SHHD', 'Install Shower Head', 'PLMB', 'Fixtures', 'EA', 65.00, 0.00, 5.00, 70.00, 'Shower head'),
+('PLMB-WHTR', 'Install Water Heater', 'PLMB', 'Fixtures', 'EA', 425.00, 0.00, 45.00, 470.00, 'Labor only'),
+('PLMB-DISH', 'Install Dishwasher Connection', 'PLMB', 'Fixtures', 'EA', 125.00, 35.00, 15.00, 175.00, 'DW hookup'),
+('PLMB-WASH', 'Install Washing Machine Box', 'PLMB', 'Fixtures', 'EA', 165.00, 45.00, 15.00, 225.00, 'Washer box');
+
+-- ============================================
+-- PHASE 8: ELECTRICAL
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('ELEC-ROMX', 'Run Romex Wire', 'ELEC', 'Rough-In', 'LF', 0.95, 0.45, 0.05, 1.45, 'Per linear foot'),
+('ELEC-OBOX', 'Install Outlet Box', 'ELEC', 'Rough-In', 'EA', 18.00, 3.50, 0.00, 21.50, 'Receptacle box'),
+('ELEC-SBOX', 'Install Switch Box', 'ELEC', 'Rough-In', 'EA', 18.00, 3.50, 0.00, 21.50, 'Switch box'),
+('ELEC-JBOX', 'Install Junction Box', 'ELEC', 'Rough-In', 'EA', 22.00, 5.50, 0.00, 27.50, 'Junction box'),
+('ELEC-COND', 'Run Conduit', 'ELEC', 'Rough-In', 'LF', 2.25, 1.85, 0.10, 4.20, 'EMT conduit'),
+('ELEC-OUTL', 'Install Outlet', 'ELEC', 'Devices', 'EA', 28.00, 4.50, 0.00, 32.50, 'Standard receptacle'),
+('ELEC-SWTC', 'Install Switch', 'ELEC', 'Devices', 'EA', 28.00, 3.50, 0.00, 31.50, 'Standard switch'),
+('ELEC-GFCI', 'Install GFCI Outlet', 'ELEC', 'Devices', 'EA', 35.00, 18.00, 0.00, 53.00, 'GFCI receptacle'),
+('ELEC-DIMR', 'Install Dimmer Switch', 'ELEC', 'Devices', 'EA', 35.00, 22.00, 0.00, 57.00, 'Dimmer'),
+('ELEC-CFIX', 'Install Ceiling Light Fixture', 'ELEC', 'Fixtures', 'EA', 75.00, 0.00, 10.00, 85.00, 'Labor only'),
+('ELEC-RCES', 'Install Recessed Light', 'ELEC', 'Fixtures', 'EA', 95.00, 0.00, 12.00, 107.00, 'Can light'),
+('ELEC-CFAN', 'Install Ceiling Fan', 'ELEC', 'Fixtures', 'EA', 145.00, 0.00, 15.00, 160.00, 'Ceiling fan'),
+('ELEC-BFAN', 'Install Bathroom Exhaust Fan', 'ELEC', 'Fixtures', 'EA', 165.00, 0.00, 20.00, 185.00, 'Exhaust fan'),
+('ELEC-SMOK', 'Install Smoke Detector', 'ELEC', 'Safety', 'EA', 45.00, 25.00, 0.00, 70.00, 'Hardwired'),
+('ELEC-CO', 'Install CO Detector', 'ELEC', 'Safety', 'EA', 45.00, 35.00, 0.00, 80.00, 'CO alarm');
+
+-- ============================================
+-- PHASE 8: HVAC
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('HVAC-SUPP', 'Install Supply Duct', 'HVAC', 'Ductwork', 'LF', 8.50, 6.50, 0.50, 15.50, 'Per linear foot'),
+('HVAC-RETN', 'Install Return Duct', 'HVAC', 'Ductwork', 'LF', 9.50, 7.50, 0.50, 17.50, 'Return air'),
+('HVAC-REGR', 'Install Register', 'HVAC', 'Registers', 'EA', 35.00, 18.00, 0.00, 53.00, 'Supply register'),
+('HVAC-VENT', 'Install Vent Cover', 'HVAC', 'Registers', 'EA', 28.00, 12.00, 0.00, 40.00, 'Vent cover'),
+('HVAC-SEAL', 'Seal Ductwork', 'HVAC', 'Sealing', 'LF', 1.85, 0.85, 0.10, 2.80, 'Mastic sealing');
+
+-- ============================================
+-- PHASE 8: INSULATION
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('INSL-R13', 'Install Batt Insulation R-13', 'INSUL', 'Batt', 'SF', 0.55, 0.45, 0.05, 1.05, '2x4 walls'),
+('INSL-R19', 'Install Batt Insulation R-19', 'INSUL', 'Batt', 'SF', 0.65, 0.65, 0.05, 1.35, '2x6 walls'),
+('INSL-R30', 'Install Batt Insulation R-30', 'INSUL', 'Batt', 'SF', 0.75, 0.95, 0.05, 1.75, 'Ceiling'),
+('INSL-BLOW', 'Blow-In Insulation', 'INSUL', 'Blown', 'SF', 0.85, 0.65, 0.25, 1.75, 'Loose fill'),
+('INSL-SPRY', 'Spray Foam Insulation', 'INSUL', 'Spray', 'SF', 1.25, 1.85, 0.35, 3.45, 'Closed cell'),
+('INSL-VAPR', 'Vapor Barrier Installation', 'INSUL', 'Barrier', 'SF', 0.35, 0.25, 0.00, 0.60, 'Poly sheeting');
+
+-- ============================================
+-- PHASE 8: DRYWALL
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DWAL-H12', 'Hang Drywall 1/2"', 'DWALL', 'Hanging', 'SF', 0.55, 0.45, 0.05, 1.05, 'Standard walls'),
+('DWAL-H58', 'Hang Drywall 5/8"', 'DWALL', 'Hanging', 'SF', 0.65, 0.55, 0.05, 1.25, 'Ceiling/firecode'),
+('DWAL-HMR', 'Hang Drywall Moisture-Resistant', 'DWALL', 'Hanging', 'SF', 0.75, 0.75, 0.05, 1.55, 'Green board'),
+('DWAL-TM3', 'Tape & Mud - Level 3', 'DWALL', 'Finishing', 'SF', 0.65, 0.15, 0.00, 0.80, 'Basic finish'),
+('DWAL-TM4', 'Tape & Mud - Level 4', 'DWALL', 'Finishing', 'SF', 0.85, 0.18, 0.00, 1.03, 'Paint ready'),
+('DWAL-TM5', 'Tape & Mud - Level 5', 'DWALL', 'Finishing', 'SF', 1.25, 0.22, 0.00, 1.47, 'Skim coat'),
+('DWAL-TORP', 'Texture - Orange Peel', 'DWALL', 'Texture', 'SF', 0.35, 0.12, 0.05, 0.52, 'Light spray'),
+('DWAL-TKND', 'Texture - Knockdown', 'DWALL', 'Texture', 'SF', 0.45, 0.15, 0.05, 0.65, 'Knockdown'),
+('DWAL-TSKP', 'Texture - Skip Trowel', 'DWALL', 'Texture', 'SF', 0.65, 0.18, 0.00, 0.83, 'Hand trowel'),
+('DWAL-PTSM', 'Patch Drywall Small', 'DWALL', 'Patching', 'EA', 25.00, 8.00, 0.00, 33.00, 'Under 1 SF'),
+('DWAL-PTLG', 'Patch Drywall Large', 'DWALL', 'Patching', 'SF', 3.50, 1.25, 0.10, 4.85, 'Per SF');
+
+-- ============================================
+-- PHASE 8: PAINTING
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('PINT-PRMW', 'Prime Walls', 'PAINT', 'Priming', 'SF', 0.35, 0.18, 0.02, 0.55, 'Wall primer'),
+('PINT-PRMC', 'Prime Ceiling', 'PAINT', 'Priming', 'SF', 0.45, 0.18, 0.02, 0.65, 'Ceiling primer'),
+('PINT-WL1', 'Paint Walls - 1 Coat', 'PAINT', 'Walls', 'SF', 0.45, 0.22, 0.02, 0.69, 'Single coat'),
+('PINT-WL2', 'Paint Walls - 2 Coats', 'PAINT', 'Walls', 'SF', 0.75, 0.38, 0.03, 1.16, 'Two coats'),
+('PINT-CEIL', 'Paint Ceiling', 'PAINT', 'Ceiling', 'SF', 0.55, 0.22, 0.03, 0.80, 'Ceiling paint'),
+('PINT-TRIM', 'Paint Trim', 'PAINT', 'Trim', 'LF', 0.85, 0.15, 0.02, 1.02, 'Per linear foot'),
+('PINT-DOOR', 'Paint Doors', 'PAINT', 'Doors', 'SIDE', 18.00, 4.50, 0.50, 23.00, 'Per side'),
+('PINT-CAB', 'Paint Cabinets', 'PAINT', 'Cabinets', 'SF', 2.25, 0.85, 0.15, 3.25, 'Cabinet painting'),
+('PINT-STIN', 'Stain & Seal Wood', 'PAINT', 'Staining', 'SF', 1.45, 0.65, 0.10, 2.20, 'Wood finishing');
+
+-- ============================================
+-- PHASE 8: TRIM & MILLWORK
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('TRIM-BASE', 'Install Baseboard', 'TRIM', 'Base', 'LF', 2.25, 1.85, 0.10, 4.20, 'Per linear foot'),
+('TRIM-SHOE', 'Install Shoe Molding', 'TRIM', 'Base', 'LF', 1.45, 0.85, 0.05, 2.35, 'Quarter round'),
+('TRIM-DCAS', 'Install Door Casing', 'TRIM', 'Casing', 'EA', 45.00, 28.00, 2.00, 75.00, 'Per opening'),
+('TRIM-WCAS', 'Install Window Casing', 'TRIM', 'Casing', 'EA', 55.00, 35.00, 2.00, 92.00, 'Per window'),
+('TRIM-CRWN', 'Install Crown Molding', 'TRIM', 'Crown', 'LF', 4.50, 3.25, 0.15, 7.90, 'Crown molding'),
+('TRIM-CHRR', 'Install Chair Rail', 'TRIM', 'Rail', 'LF', 2.85, 2.15, 0.10, 5.10, 'Chair rail'),
+('TRIM-CALK', 'Caulk & Putty', 'TRIM', 'Finishing', 'LF', 0.55, 0.15, 0.00, 0.70, 'Caulk/putty');
+
+-- ============================================
+-- PHASE 8: DOORS & WINDOWS
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('DOOR-INT', 'Install Interior Door Pre-Hung', 'DOOR', 'Interior', 'EA', 125.00, 0.00, 15.00, 140.00, 'Labor only'),
+('DOOR-EXT', 'Install Exterior Door Pre-Hung', 'DOOR', 'Exterior', 'EA', 225.00, 0.00, 25.00, 250.00, 'Labor only'),
+('DOOR-HDWR', 'Install Door Hardware', 'DOOR', 'Hardware', 'EA', 35.00, 0.00, 0.00, 35.00, 'Knobs/locks'),
+('WIND-STD', 'Install Window', 'DOOR', 'Windows', 'EA', 165.00, 0.00, 20.00, 185.00, 'Standard window'),
+('DOOR-SLDR', 'Install Sliding Glass Door', 'DOOR', 'Patio', 'EA', 385.00, 0.00, 45.00, 430.00, 'Patio door'),
+('DOOR-CLBI', 'Install Closet Doors - Bi-Fold', 'DOOR', 'Closet', 'PR', 125.00, 0.00, 15.00, 140.00, 'Per pair'),
+('DOOR-CLSL', 'Install Closet Doors - Sliding', 'DOOR', 'Closet', 'PR', 145.00, 0.00, 18.00, 163.00, 'Per pair');
+
+-- ============================================
+-- PHASE 8: FLOORING - CARPET
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('FLOR-CRPT', 'Install Carpet with Pad', 'FLOOR', 'Carpet', 'SF', 1.25, 2.85, 0.10, 4.20, 'Includes pad'),
+('FLOR-CPAD', 'Install Carpet Pad Only', 'FLOOR', 'Carpet', 'SF', 0.45, 0.65, 0.00, 1.10, 'Pad only'),
+('FLOR-TACK', 'Install Tack Strips', 'FLOOR', 'Carpet', 'LF', 0.55, 0.35, 0.00, 0.90, 'Perimeter'),
+('FLOR-SEAM', 'Carpet Seaming', 'FLOOR', 'Carpet', 'EA', 45.00, 8.00, 5.00, 58.00, 'Per seam'),
+('FLOR-TRNS', 'Transition Strips', 'FLOOR', 'Transitions', 'EA', 18.00, 12.00, 0.00, 30.00, 'Door thresholds');
+
+-- ============================================
+-- PHASE 8: FLOORING - TILE
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('TILE-CERM', 'Install Ceramic Tile Floor', 'TILE', 'Floor', 'SF', 4.50, 0.00, 0.35, 4.85, 'Labor only'),
+('TILE-PORC', 'Install Porcelain Tile Floor', 'TILE', 'Floor', 'SF', 5.25, 0.00, 0.40, 5.65, 'Labor only'),
+('TILE-SHWR', 'Install Tile Shower Walls', 'TILE', 'Walls', 'SF', 6.50, 0.00, 0.45, 6.95, 'Shower tile'),
+('TILE-BACK', 'Install Tile Backsplash', 'TILE', 'Backsplash', 'SF', 7.25, 0.00, 0.50, 7.75, 'Kitchen/bath'),
+('TILE-GROU', 'Tile Grout', 'TILE', 'Finishing', 'SF', 0.85, 0.35, 0.00, 1.20, 'Grouting'),
+('TILE-SEAL', 'Tile Sealer', 'TILE', 'Finishing', 'SF', 0.45, 0.25, 0.00, 0.70, 'Sealing'),
+('TILE-SCHL', 'Schluter Trim', 'TILE', 'Trim', 'LF', 3.50, 2.85, 0.10, 6.45, 'Edge trim');
+
+-- ============================================
+-- PHASE 8: FLOORING - HARDWOOD
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('FLOR-HDWD', 'Install Hardwood Flooring', 'FLOOR', 'Hardwood', 'SF', 4.50, 0.00, 0.45, 4.95, 'Nail down'),
+('FLOR-SAND', 'Sand & Refinish Hardwood', 'FLOOR', 'Hardwood', 'SF', 2.25, 0.45, 0.55, 3.25, 'Refinishing'),
+('FLOR-STIN', 'Stain Hardwood', 'FLOOR', 'Hardwood', 'SF', 0.85, 0.45, 0.10, 1.40, 'Staining'),
+('FLOR-SEAL', 'Seal Hardwood', 'FLOOR', 'Hardwood', 'SF', 0.65, 0.35, 0.05, 1.05, 'Polyurethane');
+
+-- ============================================
+-- PHASE 8: FLOORING - LAMINATE/LVP
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('FLOR-LMNT', 'Install Laminate Flooring', 'FLOOR', 'Laminate', 'SF', 2.25, 0.00, 0.15, 2.40, 'Floating floor'),
+('FLOR-LVP', 'Install LVP Flooring', 'FLOOR', 'LVP', 'SF', 2.45, 0.00, 0.15, 2.60, 'Luxury vinyl plank'),
+('FLOR-UNDR', 'Underlayment', 'FLOOR', 'Underlayment', 'SF', 0.35, 0.25, 0.00, 0.60, 'Foam underlayment');
+
+-- ============================================
+-- PHASE 8: FLOORING - VINYL
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('FLOR-SHVN', 'Install Sheet Vinyl', 'FLOOR', 'Vinyl', 'SF', 2.85, 0.00, 0.20, 3.05, 'Sheet vinyl'),
+('FLOR-VCT', 'Install VCT Tile', 'FLOOR', 'Vinyl', 'SF', 2.25, 0.00, 0.15, 2.40, 'Vinyl tile');
+
+-- ============================================
+-- PHASE 8: CABINETRY & COUNTERTOPS
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('CAB-BASE', 'Install Base Cabinets', 'CAB', 'Cabinets', 'LF', 45.00, 0.00, 5.00, 50.00, 'Per linear foot'),
+('CAB-UPPR', 'Install Upper Cabinets', 'CAB', 'Cabinets', 'LF', 55.00, 0.00, 5.00, 60.00, 'Wall cabinets'),
+('CAB-VNTY', 'Install Vanity', 'CAB', 'Bathroom', 'EA', 125.00, 0.00, 15.00, 140.00, 'Bathroom vanity'),
+('CAB-MEDC', 'Install Medicine Cabinet', 'CAB', 'Bathroom', 'EA', 65.00, 0.00, 8.00, 73.00, 'Med cabinet'),
+('CAB-SHLF', 'Install Shelving', 'CAB', 'Shelving', 'LF', 12.00, 0.00, 2.00, 14.00, 'Per linear foot'),
+('CAB-LMNT', 'Install Laminate Countertop', 'CAB', 'Counters', 'LF', 35.00, 0.00, 5.00, 40.00, 'Laminate counter'),
+('CAB-GRNT', 'Install Granite Countertop', 'CAB', 'Counters', 'SF', 15.00, 0.00, 5.00, 20.00, 'Granite install'),
+('CAB-QRTZ', 'Install Quartz Countertop', 'CAB', 'Counters', 'SF', 15.00, 0.00, 5.00, 20.00, 'Quartz install'),
+('CAB-BKSP', 'Install Backsplash', 'CAB', 'Backsplash', 'SF', 8.50, 0.00, 1.00, 9.50, 'Counter backsplash');
+
+-- ============================================
+-- PHASE 8: SPECIALTY ITEMS
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('SPEC-MIRR', 'Install Mirrors', 'SPEC', 'Mirrors', 'SF', 8.50, 0.00, 1.50, 10.00, 'Wall mirrors'),
+('SPEC-SHDR', 'Install Shower Door', 'SPEC', 'Shower', 'EA', 225.00, 0.00, 25.00, 250.00, 'Frameless door'),
+('SPEC-TWLB', 'Install Towel Bars', 'SPEC', 'Accessories', 'EA', 25.00, 0.00, 2.00, 27.00, 'Towel bar'),
+('SPEC-TPHL', 'Install Toilet Paper Holder', 'SPEC', 'Accessories', 'EA', 22.00, 0.00, 2.00, 24.00, 'TP holder'),
+('SPEC-GRAB', 'Install Grab Bars', 'SPEC', 'Safety', 'EA', 55.00, 0.00, 5.00, 60.00, 'Safety bars');
+
+-- ============================================
+-- PHASE 9: FINAL CLEANUP & COMPLETION
+-- ============================================
+INSERT INTO price_list (line_code, description, category, subcategory, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price, notes) VALUES
+('FINL-VACF', 'Vacuum Entire Area', 'FINAL', 'Cleaning', 'SF', 0.12, 0.00, 0.03, 0.15, 'Final vacuum'),
+('FINL-MOP', 'Mop Floors', 'FINAL', 'Cleaning', 'SF', 0.18, 0.05, 0.02, 0.25, 'Mop hard floors'),
+('FINL-WIND', 'Clean Windows', 'FINAL', 'Cleaning', 'EA', 8.00, 2.00, 0.00, 10.00, 'Per window'),
+('FINL-WIPE', 'Wipe Down All Surfaces', 'FINAL', 'Cleaning', 'HR', 45.00, 5.00, 0.00, 50.00, 'Detail wipe'),
+('FINL-TRAH', 'Remove All Debris/Trash', 'FINAL', 'Cleaning', 'HR', 45.00, 0.00, 0.00, 45.00, 'Final cleanup'),
+('FINL-WALK', 'Final Walk-Through Inspection', 'FINAL', 'Inspection', 'EA', 85.00, 0.00, 0.00, 85.00, 'Final inspection'),
+('FINL-TUCH', 'Touch-Up Paint', 'FINAL', 'Touch-Up', 'HR', 55.00, 8.00, 2.00, 65.00, 'Paint touch-up'),
+('FINL-CALK', 'Caulk Touch-Up', 'FINAL', 'Touch-Up', 'HR', 55.00, 5.00, 0.00, 60.00, 'Caulk touch-up'),
+('FINL-HDWR', 'Hardware Adjustment', 'FINAL', 'Touch-Up', 'HR', 55.00, 0.00, 2.00, 57.00, 'Adjust hardware'),
+('FINL-PNCH', 'Final Punch List Items', 'FINAL', 'Touch-Up', 'HR', 65.00, 5.00, 2.00, 72.00, 'Punch list');
+
+-- ============================================
+-- OVERHEAD & PROFIT CALCULATION RULES
+-- ============================================
+
+-- Create overhead/profit settings table
+CREATE TABLE IF NOT EXISTS overhead_profit_settings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  setting_name TEXT UNIQUE NOT NULL,
+  percentage REAL NOT NULL,
+  description TEXT,
+  active BOOLEAN DEFAULT TRUE,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default overhead and profit settings
+INSERT INTO overhead_profit_settings (setting_name, percentage, description) VALUES
+('overhead', 15.0, 'General overhead - insurance, office, admin, bonding'),
+('profit', 15.0, 'Profit margin applied after overhead'),
+('tool_depreciation', 5.0, 'Tool and equipment wear & tear - % of labor'),
+('vehicle_overhead', 0.67, 'Vehicle costs per mile (IRS rate + maintenance)'),
+('supervision', 10.0, 'Project supervision and management - % of total labor');
+
+-- ============================================
+-- INVOICE/ESTIMATE GENERATION TABLES
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS estimates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  estimate_number TEXT UNIQUE NOT NULL,
+  work_order_id INTEGER,
+  customer_name TEXT NOT NULL,
+  property_address TEXT NOT NULL,
+  loss_date DATE,
+  estimate_date DATE DEFAULT CURRENT_DATE,
+  estimator_name TEXT,
+  subtotal REAL DEFAULT 0,
+  overhead_amount REAL DEFAULT 0,
+  profit_amount REAL DEFAULT 0,
+  total_amount REAL DEFAULT 0,
+  status TEXT DEFAULT 'Draft',
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS estimate_line_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  estimate_id INTEGER NOT NULL,
+  line_number INTEGER,
+  line_code TEXT NOT NULL,
+  description TEXT NOT NULL,
+  quantity REAL NOT NULL,
+  unit_of_measure TEXT NOT NULL,
+  unit_price REAL NOT NULL,
+  line_total REAL NOT NULL,
+  category TEXT,
+  notes TEXT,
+  FOREIGN KEY (estimate_id) REFERENCES estimates(id),
+  FOREIGN KEY (line_code) REFERENCES price_list(line_code)
+);
+
+-- ============================================
+-- SAMPLE QUERIES FOR USING THE DATABASE
+-- ============================================
+
+-- Query 1: Get all items in a specific category
+-- SELECT * FROM price_list WHERE category = 'DEMO' ORDER BY line_code;
+
+-- Query 2: Search for specific items
+-- SELECT line_code, description, unit_price, unit_of_measure 
+-- FROM price_list 
+-- WHERE description LIKE '%drywall%' 
+-- ORDER BY unit_price;
+
+-- Query 3: Calculate estimate with overhead and profit
+-- Example: 500 SF of drywall removal at $0.50/SF
+-- Subtotal: $250
+-- Tool Depreciation (5% of labor): $250 * 0.45/0.50 * 0.05 = $11.25
+-- Overhead (15%): ($250 + $11.25) * 0.15 = $39.19
+-- Profit (15%): ($250 + $11.25 + $39.19) * 0.15 = $45.07
+-- TOTAL: $345.51
+
+-- Query 4: Get price list by category with totals
+-- SELECT 
+--   category,
+--   COUNT(*) as item_count,
+--   AVG(unit_price) as avg_price,
+--   MIN(unit_price) as min_price,
+--   MAX(unit_price) as max_price
+-- FROM price_list
+-- GROUP BY category
+-- ORDER BY category;
+
+-- Query 5: Find most expensive items
+-- SELECT line_code, description, unit_price, unit_of_measure
+-- FROM price_list
+-- ORDER BY unit_price DESC
+-- LIMIT 20;
+
+-- ============================================
+-- INDEXES FOR PERFORMANCE
+-- ============================================
+CREATE INDEX IF NOT EXISTS idx_price_list_category ON price_list(category);
+CREATE INDEX IF NOT EXISTS idx_price_list_line_code ON price_list(line_code);
+CREATE INDEX IF NOT EXISTS idx_price_list_active ON price_list(active);
+CREATE INDEX IF NOT EXISTS idx_estimate_line_items_estimate_id ON estimate_line_items(estimate_id);
+CREATE INDEX IF NOT EXISTS idx_estimates_work_order ON estimates(work_order_id);
+
+-- ============================================
+-- COMPLETE! 
+-- Total Line Items: 250+
+-- All phases from emergency response to final cleanup
+-- Includes overhead, profit, and vehicle/tool costs
+-- Ready for San Diego, CA pricing
+-- ============================================

@@ -1,0 +1,1411 @@
+import React, { useState, useEffect } from 'react';
+import { Home, Users, Droplet, Hammer, FileText, DollarSign, Plus, AlertTriangle, CheckCircle, Clock, X, Save, Edit2, Trash2, Eye, Calculator, Settings, Package, Wrench, TrendingUp, ClipboardList, UserCheck, Truck, FileEdit, BarChart3, Bell, Search, Filter, Download, Upload, Mail, Phone, MapPin, Calendar, HardHat, Building2, Briefcase } from 'lucide-react';
+
+const BCSCompleteSystem = () => {
+  const [activeView, setActiveView] = useState('dashboard');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [editingItem, setEditingItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // State for all modules
+  const [clients, setClients] = useState([]);
+  const [dryoutJobs, setDryoutJobs] = useState([]);
+  const [reconstructionJobs, setReconstructionJobs] = useState([]);
+  const [workOrders, setWorkOrders] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [estimates, setEstimates] = useState([]);
+  const [changeOrders, setChangeOrders] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [equipment, setEquipment] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [tools, setTools] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [priceList, setPriceList] = useState([]);
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  const loadAllData = async () => {
+    try {
+      setLoading(true);
+      const dataKeys = [
+        'bcs_clients', 'bcs_dryout_jobs', 'bcs_recon_jobs', 'bcs_work_orders',
+        'bcs_invoices', 'bcs_estimates', 'bcs_change_orders', 'bcs_employees',
+        'bcs_equipment', 'bcs_materials', 'bcs_tools', 'bcs_vendors', 'bcs_price_list'
+      ];
+
+      const results = await Promise.all(
+        dataKeys.map(key => window.storage.get(key).catch(() => null))
+      );
+
+      setClients(parseData(results[0]));
+      setDryoutJobs(parseData(results[1]));
+      setReconstructionJobs(parseData(results[2]));
+      setWorkOrders(parseData(results[3]));
+      setInvoices(parseData(results[4]));
+      setEstimates(parseData(results[5]));
+      setChangeOrders(parseData(results[6]));
+      setEmployees(parseData(results[7]));
+      setEquipment(parseData(results[8]));
+      setMaterials(parseData(results[9]));
+      setTools(parseData(results[10]));
+      setVendors(parseData(results[11]));
+      setPriceList(parseData(results[12], getDefaultPriceList()));
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const parseData = (result, defaultValue = []) => {
+    return result ? JSON.parse(result.value) : defaultValue;
+  };
+
+  const saveData = async (key, data) => {
+    try {
+      await window.storage.set(key, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving data:', error);
+      alert('Error saving data. Please try again.');
+    }
+  };
+
+  const getDefaultPriceList = () => [
+    { code: 'EMRG-DISP', description: 'Emergency Dispatch Fee', category: 'Emergency', unit: 'EA', price: 75 },
+    { code: 'DEMO-CRPT', description: 'Remove Carpet', category: 'Demolition', unit: 'SF', price: 0.50 },
+    { code: 'DEMO-DW4', description: 'Remove Drywall - 4ft', category: 'Demolition', unit: 'SF', price: 0.60 },
+    { code: 'EQUIP-AMOV', description: 'Air Mover - Per Day', category: 'Equipment', unit: 'DAY', price: 26 },
+    { code: 'EQUIP-DEHM', description: 'Dehumidifier - Per Day', category: 'Equipment', unit: 'DAY', price: 45 },
+    { code: 'DWAL-H12', description: 'Hang Drywall 1/2"', category: 'Drywall', unit: 'SF', price: 1.05 },
+    { code: 'DWAL-TM4', description: 'Tape & Mud - Level 4', category: 'Drywall', unit: 'SF', price: 1.03 },
+    { code: 'PINT-WL2', description: 'Paint Walls - 2 Coats', category: 'Painting', unit: 'SF', price: 1.16 },
+    { code: 'FLOR-CRPT', description: 'Install Carpet with Pad', category: 'Flooring', unit: 'SF', price: 4.20 },
+    { code: 'TILE-CERM', description: 'Install Ceramic Tile Floor', category: 'Tile', unit: 'SF', price: 4.85 }
+  ];
+
+  // CRUD Operations
+  const addOrUpdate = async (type, data, storageKey, setState, currentData) => {
+    let updated;
+    if (editingItem) {
+      updated = currentData.map(item => item.id === editingItem.id ? { ...data, id: editingItem.id } : item);
+    } else {
+      const newItem = { ...data, id: Date.now().toString(), createdAt: new Date().toISOString() };
+      updated = [...currentData, newItem];
+    }
+    setState(updated);
+    await saveData(storageKey, updated);
+    closeModal();
+  };
+
+  const deleteItem = async (id, storageKey, setState, currentData, confirmMsg) => {
+    if (confirm(confirmMsg)) {
+      const updated = currentData.filter(item => item.id !== id);
+      setState(updated);
+      await saveData(storageKey, updated);
+    }
+  };
+
+  const openModal = (type, item = null) => {
+    setModalType(type);
+    setEditingItem(item);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalType('');
+    setEditingItem(null);
+  };
+
+  // Calculate comprehensive KPIs
+  const kpis = {
+    activeDryout: dryoutJobs.filter(j => j.status === 'active').length,
+    activeRecon: reconstructionJobs.filter(j => j.status === 'active').length,
+    openWorkOrders: workOrders.filter(w => w.status === 'open').length,
+    pendingInvoices: invoices.filter(i => i.status === 'pending').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0),
+    overdueInvoices: invoices.filter(i => i.status === 'overdue').length,
+    activeEmployees: employees.filter(e => e.status === 'active').length,
+    equipmentInUse: equipment.filter(e => e.status === 'in-use').length,
+    pendingEstimates: estimates.filter(e => e.status === 'pending').length,
+    totalRevenue: invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0)
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading Building Care Solutions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Building Care Solutions</h1>
+              <p className="text-sm text-blue-100">Complete Restoration & Construction Management</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 hover:bg-blue-700 rounded-lg transition">
+                <Bell size={20} />
+              </button>
+              <button className="p-2 hover:bg-blue-700 rounded-lg transition">
+                <Settings size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex space-x-1 overflow-x-auto py-2">
+            {[
+              { id: 'dashboard', icon: Home, label: 'Dashboard' },
+              { id: 'clients', icon: Users, label: 'Clients' },
+              { id: 'work-orders', icon: ClipboardList, label: 'Work Orders' },
+              { id: 'dryout', icon: Droplet, label: 'Dryout' },
+              { id: 'reconstruction', icon: Hammer, label: 'Reconstruction' },
+              { id: 'estimates', icon: Calculator, label: 'Estimates' },
+              { id: 'invoices', icon: FileText, label: 'Invoices' },
+              { id: 'change-orders', icon: FileEdit, label: 'Change Orders' },
+              { id: 'employees', icon: UserCheck, label: 'Employees' },
+              { id: 'equipment', icon: Truck, label: 'Equipment' },
+              { id: 'materials', icon: Package, label: 'Materials' },
+              { id: 'tools', icon: Wrench, label: 'Tools' },
+              { id: 'vendors', icon: Building2, label: 'Vendors' },
+              { id: 'pricing', icon: DollarSign, label: 'Price List' },
+              { id: 'reports', icon: BarChart3, label: 'Reports' }
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveView(item.id)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors whitespace-nowrap text-sm ${
+                  activeView === item.id
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <item.icon size={16} />
+                <span className="font-medium">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {activeView === 'dashboard' && <Dashboard kpis={kpis} openModal={openModal} />}
+        {activeView === 'clients' && <DataView title="Clients" icon={Users} data={clients} type="client" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_clients', setClients, clients, 'Delete this client?')} />}
+        {activeView === 'work-orders' && <DataView title="Work Orders" icon={ClipboardList} data={workOrders} type="work-order" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_work_orders', setWorkOrders, workOrders, 'Delete this work order?')} />}
+        {activeView === 'dryout' && <DataView title="Dryout Jobs" icon={Droplet} data={dryoutJobs} type="dryout" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_dryout_jobs', setDryoutJobs, dryoutJobs, 'Delete this job?')} />}
+        {activeView === 'reconstruction' && <DataView title="Reconstruction" icon={Hammer} data={reconstructionJobs} type="reconstruction" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_recon_jobs', setReconstructionJobs, reconstructionJobs, 'Delete this project?')} />}
+        {activeView === 'estimates' && <EstimatesView estimates={estimates} priceList={priceList} openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_estimates', setEstimates, estimates, 'Delete this estimate?')} />}
+        {activeView === 'invoices' && <DataView title="Invoices" icon={FileText} data={invoices} type="invoice" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_invoices', setInvoices, invoices, 'Delete this invoice?')} />}
+        {activeView === 'change-orders' && <DataView title="Change Orders" icon={FileEdit} data={changeOrders} type="change-order" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_change_orders', setChangeOrders, changeOrders, 'Delete this change order?')} />}
+        {activeView === 'employees' && <DataView title="Employees" icon={UserCheck} data={employees} type="employee" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_employees', setEmployees, employees, 'Delete this employee?')} />}
+        {activeView === 'equipment' && <DataView title="Equipment" icon={Truck} data={equipment} type="equipment" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_equipment', setEquipment, equipment, 'Delete this equipment?')} />}
+        {activeView === 'materials' && <DataView title="Materials" icon={Package} data={materials} type="material" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_materials', setMaterials, materials, 'Delete this material?')} />}
+        {activeView === 'tools' && <DataView title="Tools" icon={Tool} data={tools} type="tool" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_tools', setTools, tools, 'Delete this tool?')} />}
+        {activeView === 'vendors' && <DataView title="Vendors" icon={Building2} data={vendors} type="vendor" openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_vendors', setVendors, vendors, 'Delete this vendor?')} />}
+        {activeView === 'pricing' && <PricingView priceList={priceList} openModal={openModal} deleteItem={(id) => deleteItem(id, 'bcs_price_list', setPriceList, priceList, 'Delete this price item?')} />}
+        {activeView === 'reports' && <Reports kpis={kpis} invoices={invoices} estimates={estimates} employees={employees} />}
+      </main>
+
+      {/* Universal Modal */}
+      {showModal && (
+        <UniversalModal
+          type={modalType}
+          item={editingItem}
+          clients={clients}
+          priceList={priceList}
+          onClose={closeModal}
+          onSave={(data) => {
+            const saves = {
+              'client': () => addOrUpdate('client', data, 'bcs_clients', setClients, clients),
+              'work-order': () => addOrUpdate('work-order', data, 'bcs_work_orders', setWorkOrders, workOrders),
+              'dryout': () => addOrUpdate('dryout', data, 'bcs_dryout_jobs', setDryoutJobs, dryoutJobs),
+              'reconstruction': () => addOrUpdate('recon', data, 'bcs_recon_jobs', setReconstructionJobs, reconstructionJobs),
+              'estimate': () => addOrUpdate('estimate', data, 'bcs_estimates', setEstimates, estimates),
+              'invoice': () => addOrUpdate('invoice', data, 'bcs_invoices', setInvoices, invoices),
+              'change-order': () => addOrUpdate('change-order', data, 'bcs_change_orders', setChangeOrders, changeOrders),
+              'employee': () => addOrUpdate('employee', data, 'bcs_employees', setEmployees, employees),
+              'equipment': () => addOrUpdate('equipment', data, 'bcs_equipment', setEquipment, equipment),
+              'material': () => addOrUpdate('material', data, 'bcs_materials', setMaterials, materials),
+              'tool': () => addOrUpdate('tool', data, 'bcs_tools', setTools, tools),
+              'vendor': () => addOrUpdate('vendor', data, 'bcs_vendors', setVendors, vendors),
+              'price-item': () => addOrUpdate('price', data, 'bcs_price_list', setPriceList, priceList)
+            };
+            if (saves[modalType]) saves[modalType]();
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+// Dashboard Component
+const Dashboard = ({ kpis, openModal }) => (
+  <div className="space-y-6">
+    {/* KPI Cards */}
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <KPICard title="Active Dryout" value={kpis.activeDryout} icon={Droplet} color="blue" />
+      <KPICard title="Reconstruction" value={kpis.activeRecon} icon={Hammer} color="green" />
+      <KPICard title="Work Orders" value={kpis.openWorkOrders} icon={ClipboardList} color="purple" />
+      <KPICard title="Pending ($)" value={`$${kpis.pendingInvoices.toLocaleString()}`} icon={DollarSign} color="yellow" />
+      <KPICard title="Overdue" value={kpis.overdueInvoices} icon={AlertTriangle} color="red" />
+      <KPICard title="Employees" value={kpis.activeEmployees} icon={UserCheck} color="indigo" />
+      <KPICard title="Equipment In Use" value={kpis.equipmentInUse} icon={Truck} color="orange" />
+      <KPICard title="Est. Pending" value={kpis.pendingEstimates} icon={Calculator} color="teal" />
+      <KPICard title="Revenue (YTD)" value={`$${kpis.totalRevenue.toLocaleString()}`} icon={TrendingUp} color="green" />
+    </div>
+
+    {/* Quick Actions */}
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">Quick Actions</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <QuickActionButton icon={Users} label="New Client" onClick={() => openModal('client')} />
+        <QuickActionButton icon={ClipboardList} label="Work Order" onClick={() => openModal('work-order')} />
+        <QuickActionButton icon={Calculator} label="Estimate" onClick={() => openModal('estimate')} color="green" />
+        <QuickActionButton icon={FileText} label="Invoice" onClick={() => openModal('invoice')} />
+        <QuickActionButton icon={Droplet} label="Dryout Job" onClick={() => openModal('dryout')} color="blue" />
+        <QuickActionButton icon={Hammer} label="Reconstruction" onClick={() => openModal('reconstruction')} color="orange" />
+        <QuickActionButton icon={UserCheck} label="Employee" onClick={() => openModal('employee')} color="purple" />
+        <QuickActionButton icon={Truck} label="Equipment" onClick={() => openModal('equipment')} color="indigo" />
+      </div>
+    </div>
+  </div>
+);
+
+// Generic Data View Component
+const DataView = ({ title, icon: Icon, data, type, openModal, deleteItem }) => (
+  <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center space-x-2">
+        <Icon size={24} className="text-blue-600" />
+        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+        <span className="text-sm text-gray-500">({data.length})</span>
+      </div>
+      <button onClick={() => openModal(type)} className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <Plus size={18} />
+        <span>Add New</span>
+      </button>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {data.map(item => (
+        <DataCard key={item.id} item={item} type={type} onEdit={() => openModal(type, item)} onDelete={() => deleteItem(item.id)} />
+      ))}
+    </div>
+  </div>
+);
+
+// Data Card Component
+const DataCard = ({ item, type, onEdit, onDelete }) => (
+  <div className="border rounded-lg p-4 hover:shadow-md transition">
+    <div className="flex justify-between items-start mb-2">
+      <div className="flex-1">
+        <h3 className="font-semibold text-gray-800">{item.name || item.title || item.projectNumber || item.description || 'Untitled'}</h3>
+        {item.status && <StatusBadge status={item.status} />}
+      </div>
+      <div className="flex space-x-1">
+        <button onClick={onEdit} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+          <Edit2 size={16} />
+        </button>
+        <button onClick={onDelete} className="p-1 text-red-600 hover:bg-red-50 rounded">
+          <Trash2 size={16} />
+        </button>
+      </div>
+    </div>
+    <div className="space-y-1 text-sm text-gray-600">
+      {item.email && <p><Mail size={14} className="inline mr-1" />{item.email}</p>}
+      {item.phone && <p><Phone size={14} className="inline mr-1" />{item.phone}</p>}
+      {item.address && <p><MapPin size={14} className="inline mr-1" />{item.address}</p>}
+      {item.location && <p><MapPin size={14} className="inline mr-1" />{item.location}</p>}
+      {item.serialNumber && <p><strong>S/N:</strong> {item.serialNumber}</p>}
+      {item.quantity && <p><strong>Qty:</strong> {item.quantity} {item.unit}</p>}
+      {item.amount && <p><strong>Amount:</strong> ${parseFloat(item.amount).toLocaleString()}</p>}
+      {item.totalAmount && <p><strong>Total:</strong> ${parseFloat(item.totalAmount).toLocaleString()}</p>}
+    </div>
+  </div>
+);
+
+// Estimates View with Price List Integration
+const EstimatesView = ({ estimates, priceList, openModal, deleteItem }) => (
+  <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">Estimates & Quotes</h2>
+      <button onClick={() => openModal('estimate')} className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        <Plus size={18} />
+        <span>New Estimate</span>
+      </button>
+    </div>
+    <div className="space-y-4">
+      {estimates.map(est => (
+        <div key={est.id} className="border rounded-lg p-4 hover:shadow-md transition">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center space-x-3 mb-2">
+                <h3 className="font-semibold text-gray-800">{est.estimateNumber || `EST-${est.id}`}</h3>
+                <StatusBadge status={est.status} />
+              </div>
+              <p className="text-sm text-gray-600 mb-2">{est.projectDescription}</p>
+              {est.lineItems && est.lineItems.length > 0 && (
+                <div className="mt-3 bg-gray-50 rounded p-3">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">Line Items:</p>
+                  {est.lineItems.map((item, idx) => (
+                    <div key={idx} className="text-xs text-gray-600 flex justify-between mb-1">
+                      <span>{item.description} ({item.quantity} {item.unit})</span>
+                      <span>${((item.quantity || 0) * (item.unitPrice || 0)).toLocaleString()}</span>
+                    </div>
+                  ))}
+                  <div className="border-t mt-2 pt-2 space-y-1 text-xs">
+                    <div className="flex justify-between"><span>Subtotal:</span><span>${est.subtotal || 0}</span></div>
+                    <div className="flex justify-between"><span>Overhead (15%):</span><span>${est.overhead || 0}</span></div>
+                    <div className="flex justify-between"><span>Profit (20%):</span><span>${est.profit || 0}</span></div>
+                    <div className="flex justify-between font-bold text-sm border-t pt-1">
+                      <span>Total:</span><span>${est.totalAmount || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex space-x-1">
+              <button onClick={() => openModal('estimate', est)} className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                <Edit2 size={18} />
+              </button>
+              <button onClick={() => deleteItem(est.id)} className="p-2 text-red-600 hover:bg-red-50 rounded">
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// Pricing View
+const PricingView = ({ priceList, openModal, deleteItem }) => {
+  const [filter, setFilter] = useState('all');
+  const categories = [...new Set(priceList.map(p => p.category))];
+  const filtered = filter === 'all' ? priceList : priceList.filter(p => p.category === filter);
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Price List Database</h2>
+        <div className="flex items-center space-x-3">
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="px-3 py-2 border rounded-lg">
+            <option value="all">All Categories</option>
+            {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+          <button onClick={() => openModal('price-item')} className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <Plus size={18} />
+            <span>Add Item</span>
+          </button>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unit</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filtered.map(item => (
+              <tr key={item.id}>
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.code}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.description}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.category}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.unit}</td>
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900">${item.price.toFixed(2)}</td>
+                <td className="px-4 py-3 text-sm">
+                  <div className="flex space-x-1">
+                    <button onClick={() => openModal('price-item', item)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => deleteItem(item.id)} className="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+// Reports Component
+const Reports = ({ kpis, invoices, estimates, employees }) => {
+  const monthlyRevenue = invoices
+    .filter(i => i.status === 'paid')
+    .reduce((acc, inv) => {
+      const month = new Date(inv.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      acc[month] = (acc[month] || 0) + parseFloat(inv.amount || 0);
+      return acc;
+    }, {});
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Business Reports</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Financial Summary */}
+          <div className="border rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 flex items-center">
+              <DollarSign className="mr-2 text-green-600" size={20} />
+              Financial Summary
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Total Revenue:</span><strong>${kpis.totalRevenue.toLocaleString()}</strong></div>
+              <div className="flex justify-between"><span>Pending Invoices:</span><strong>${kpis.pendingInvoices.toLocaleString()}</strong></div>
+              <div className="flex justify-between"><span>Overdue Invoices:</span><strong className="text-red-600">{kpis.overdueInvoices}</strong></div>
+              <div className="flex justify-between"><span>Pending Estimates:</span><strong>{kpis.pendingEstimates}</strong></div>
+            </div>
+          </div>
+
+          {/* Operations Summary */}
+          <div className="border rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 flex items-center">
+              <Hammer className="mr-2 text-blue-600" size={20} />
+              Operations Summary
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Active Dryout Jobs:</span><strong>{kpis.activeDryout}</strong></div>
+              <div className="flex justify-between"><span>Active Reconstruction:</span><strong>{kpis.activeRecon}</strong></div>
+              <div className="flex justify-between"><span>Open Work Orders:</span><strong>{kpis.openWorkOrders}</strong></div>
+              <div className="flex justify-between"><span>Active Employees:</span><strong>{kpis.activeEmployees}</strong></div>
+              <div className="flex justify-between"><span>Equipment In Use:</span><strong>{kpis.equipmentInUse}</strong></div>
+            </div>
+          </div>
+
+          {/* Monthly Revenue */}
+          <div className="border rounded-lg p-4 md:col-span-2">
+            <h3 className="text-lg font-semibold mb-3 flex items-center">
+              <TrendingUp className="mr-2 text-green-600" size={20} />
+              Monthly Revenue
+            </h3>
+            <div className="space-y-2">
+              {Object.entries(monthlyRevenue).map(([month, amount]) => (
+                <div key={month} className="flex justify-between items-center">
+                  <span className="text-sm">{month}</span>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-48 bg-gray-200 rounded-full h-2">
+                      <div className="bg-green-600 h-2 rounded-full" style={{ width: `${Math.min((amount / Math.max(...Object.values(monthlyRevenue))) * 100, 100)}%` }}></div>
+                    </div>
+                    <span className="text-sm font-semibold">${amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Universal Modal Component
+const UniversalModal = ({ type, item, clients, priceList, onClose, onSave }) => {
+  const [formData, setFormData] = useState(item || {});
+  const [lineItems, setLineItems] = useState(item?.lineItems || []);
+
+  useEffect(() => {
+    if (type === 'estimate' && lineItems.length > 0) {
+      calculateEstimateTotal();
+    }
+  }, [lineItems]);
+
+  const handleChange = (e) => {
+    const { name, value, type: inputType, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: inputType === 'checkbox' ? checked : value }));
+  };
+
+  const addLineItem = () => {
+    setLineItems([...lineItems, { description: '', quantity: 1, unit: 'SF', unitPrice: 0 }]);
+  };
+
+  const addFromPriceList = (priceItem) => {
+    setLineItems([...lineItems, {
+      code: priceItem.code,
+      description: priceItem.description,
+      quantity: 1,
+      unit: priceItem.unit,
+      unitPrice: priceItem.price
+    }]);
+  };
+
+  const updateLineItem = (index, field, value) => {
+    const updated = [...lineItems];
+    updated[index][field] = value;
+    setLineItems(updated);
+  };
+
+  const removeLineItem = (index) => {
+    setLineItems(lineItems.filter((_, i) => i !== index));
+  };
+
+  const calculateEstimateTotal = () => {
+    const subtotal = lineItems.reduce((sum, item) => sum + ((parseFloat(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)), 0);
+    const overhead = subtotal * 0.15;
+    const profit = (subtotal + overhead) * 0.20;
+    const total = subtotal + overhead + profit;
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      subtotal: subtotal.toFixed(2),
+      overhead: overhead.toFixed(2),
+      profit: profit.toFixed(2),
+      totalAmount: total.toFixed(2)
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (type === 'estimate') {
+      onSave({ ...formData, lineItems });
+    } else {
+      onSave(formData);
+    }
+  };
+
+  const renderFormFields = () => {
+    switch(type) {
+      case 'client':
+        return <ClientForm formData={formData} handleChange={handleChange} />;
+      case 'work-order':
+        return <WorkOrderForm formData={formData} handleChange={handleChange} clients={clients} />;
+      case 'dryout':
+        return <DryoutForm formData={formData} handleChange={handleChange} clients={clients} />;
+      case 'reconstruction':
+        return <ReconstructionForm formData={formData} handleChange={handleChange} clients={clients} />;
+      case 'estimate':
+        return <EstimateForm formData={formData} handleChange={handleChange} clients={clients} lineItems={lineItems} addLineItem={addLineItem} updateLineItem={updateLineItem} removeLineItem={removeLineItem} calculateEstimateTotal={calculateEstimateTotal} priceList={priceList} addFromPriceList={addFromPriceList} />;
+      case 'invoice':
+        return <InvoiceForm formData={formData} handleChange={handleChange} clients={clients} />;
+      case 'change-order':
+        return <ChangeOrderForm formData={formData} handleChange={handleChange} clients={clients} />;
+      case 'employee':
+        return <EmployeeForm formData={formData} handleChange={handleChange} />;
+      case 'equipment':
+        return <EquipmentForm formData={formData} handleChange={handleChange} />;
+      case 'material':
+        return <MaterialForm formData={formData} handleChange={handleChange} />;
+      case 'tool':
+        return <ToolForm formData={formData} handleChange={handleChange} />;
+      case 'vendor':
+        return <VendorForm formData={formData} handleChange={handleChange} />;
+      case 'price-item':
+        return <PriceItemForm formData={formData} handleChange={handleChange} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+          <h2 className="text-2xl font-bold text-gray-800">
+            {item ? 'Edit' : 'New'} {type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+          </h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          {renderFormFields()}
+          
+          <div className="flex justify-end space-x-3 pt-4 border-t mt-6">
+            <button type="button" onClick={onClose} className="px-4 py-2 border rounded-lg hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="submit" className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <Save size={18} />
+              <span>Save</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Form Components
+const ClientForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client Type</label>
+      <select name="type" value={formData.type || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Type</option>
+        <option value="Residential">Residential</option>
+        <option value="Commercial">Commercial</option>
+        <option value="HOA">HOA</option>
+        <option value="Insurance">Insurance Company</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+      <input type="email" name="email" value={formData.email || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+      <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+      <input type="text" name="address" value={formData.address || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+  </div>
+);
+
+const WorkOrderForm = ({ formData, handleChange, clients }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+      <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Client</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Work Order Number</label>
+      <input type="text" name="projectNumber" value={formData.projectNumber || ''} onChange={handleChange} placeholder="WO-001" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+      <textarea name="description" value={formData.description || ''} onChange={handleChange} required rows="3" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+      <select name="priority" value={formData.priority || 'medium'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="emergency">Emergency</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'open'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+);
+
+const DryoutForm = ({ formData, handleChange, clients }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+      <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Client</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+      <input type="text" name="location" value={formData.location || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Water Category *</label>
+      <select name="waterCategory" value={formData.waterCategory || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Category</option>
+        <option value="Category 1">Category 1 (Clean Water)</option>
+        <option value="Category 2">Category 2 (Gray Water)</option>
+        <option value="Category 3">Category 3 (Black Water)</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Affected Area (sq ft)</label>
+      <input type="number" name="affectedArea" value={formData.affectedArea || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Equipment Used</label>
+      <input type="text" name="equipment" value={formData.equipment || ''} onChange={handleChange} placeholder="e.g., 5 Air Movers, 2 Dehumidifiers" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Current Humidity (%)</label>
+      <input type="number" name="humidity" value={formData.humidity || ''} onChange={handleChange} min="0" max="100" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'active'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="active">Active</option>
+        <option value="monitoring">Monitoring</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+  </div>
+);
+
+const ReconstructionForm = ({ formData, handleChange, clients }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+      <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Client</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Project Type *</label>
+      <input type="text" name="projectType" value={formData.projectType || ''} onChange={handleChange} required placeholder="e.g., Kitchen Remodel" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
+      <input type="text" name="location" value={formData.location || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
+      <input type="number" name="budget" value={formData.budget || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+      <input type="date" name="startDate" value={formData.startDate || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Est. Completion</label>
+      <input type="date" name="estimatedCompletion" value={formData.estimatedCompletion || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'pending'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="pending">Pending</option>
+        <option value="active">Active</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+  </div>
+);
+
+const EstimateForm = ({ formData, handleChange, clients, lineItems, addLineItem, updateLineItem, removeLineItem, calculateEstimateTotal, priceList, addFromPriceList }) => {
+  const [showPriceList, setShowPriceList] = useState(false);
+  const [searchPrice, setSearchPrice] = useState('');
+  
+  const filteredPrices = priceList.filter(p => 
+    p.description.toLowerCase().includes(searchPrice.toLowerCase()) || 
+    p.code.toLowerCase().includes(searchPrice.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+          <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="">Select Client</option>
+            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select name="status" value={formData.status || 'draft'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="draft">Draft</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Project Description *</label>
+        <textarea name="projectDescription" value={formData.projectDescription || ''} onChange={handleChange} required rows="2" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div className="border-t pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-semibold text-gray-800">Line Items</h3>
+          <div className="flex space-x-2">
+            <button type="button" onClick={() => setShowPriceList(!showPriceList)} className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+              <Search size={16} />
+              <span>From Price List</span>
+            </button>
+            <button type="button" onClick={addLineItem} className="flex items-center space-x-1 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+              <Plus size={16} />
+              <span>Add Custom</span>
+            </button>
+          </div>
+        </div>
+
+        {showPriceList && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <input
+              type="text"
+              placeholder="Search price list..."
+              value={searchPrice}
+              onChange={(e) => setSearchPrice(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg mb-2"
+            />
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {filteredPrices.slice(0, 10).map(item => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => addFromPriceList(item)}
+                  className="w-full text-left px-3 py-2 hover:bg-blue-50 rounded text-sm flex justify-between"
+                >
+                  <span><strong>{item.code}</strong> - {item.description}</span>
+                  <span className="font-semibold">${item.price.toFixed(2)}/{item.unit}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {lineItems.map((item, index) => (
+          <div key={index} className="bg-gray-50 p-3 rounded mb-3">
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-5">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={item.description}
+                  onChange={(e) => updateLineItem(index, 'description', e.target.value)}
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={item.quantity}
+                  onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+              </div>
+              <div className="col-span-2">
+                <select
+                  value={item.unit}
+                  onChange={(e) => updateLineItem(index, 'unit', e.target.value)}
+                  className="w-full px-2 py-1 text-sm border rounded"
+                >
+                  <option value="SF">SF</option>
+                  <option value="LF">LF</option>
+                  <option value="EA">EA</option>
+                  <option value="HR">HR</option>
+                  <option value="DAY">DAY</option>
+                </select>
+              </div>
+              <div className="col-span-2">
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={item.unitPrice}
+                  onChange={(e) => updateLineItem(index, 'unitPrice', e.target.value)}
+                  step="0.01"
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+              </div>
+              <div className="col-span-1 flex items-center justify-between">
+                <span className="text-sm font-medium">${((item.quantity || 0) * (item.unitPrice || 0)).toFixed(2)}</span>
+                <button type="button" onClick={() => removeLineItem(index)} className="text-red-600 hover:text-red-800">
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {lineItems.length > 0 && (
+          <button type="button" onClick={calculateEstimateTotal} className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mb-3">
+            Calculate Total
+          </button>
+        )}
+
+        {formData.totalAmount && (
+          <div className="bg-blue-50 p-4 rounded space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Subtotal:</span>
+              <span className="font-semibold">${parseFloat(formData.subtotal || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Overhead (15%):</span>
+              <span className="font-semibold">${parseFloat(formData.overhead || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Profit (20%):</span>
+              <span className="font-semibold">${parseFloat(formData.profit || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between font-bold text-lg border-t border-blue-200 pt-2">
+              <span>Total:</span>
+              <span>${parseFloat(formData.totalAmount || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const InvoiceForm = ({ formData, handleChange, clients }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+      <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Client</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+      <input type="number" name="amount" value={formData.amount || ''} onChange={handleChange} required step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+      <textarea name="description" value={formData.description || ''} onChange={handleChange} rows="3" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+      <input type="date" name="dueDate" value={formData.dueDate || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'pending'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="pending">Pending</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+);
+
+const ChangeOrderForm = ({ formData, handleChange, clients }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Client *</label>
+      <select name="clientId" value={formData.clientId || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Client</option>
+        {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Change Order Number</label>
+      <input type="text" name="changeOrderNumber" value={formData.changeOrderNumber || ''} onChange={handleChange} placeholder="CO-001" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+      <textarea name="description" value={formData.description || ''} onChange={handleChange} required rows="3" placeholder="Describe the changes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Original Amount</label>
+      <input type="number" name="originalAmount" value={formData.originalAmount || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Change Amount *</label>
+      <input type="number" name="changeAmount" value={formData.changeAmount || ''} onChange={handleChange} required step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Change</label>
+      <select name="reason" value={formData.reason || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Reason</option>
+        <option value="scope-change">Scope Change</option>
+        <option value="material-upgrade">Material Upgrade</option>
+        <option value="additional-work">Additional Work Found</option>
+        <option value="client-request">Client Request</option>
+        <option value="unforeseen">Unforeseen Conditions</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'pending'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="pending">Pending Approval</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+);
+
+const EmployeeForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Position/Role *</label>
+      <select name="position" value={formData.position || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Position</option>
+        <option value="technician">Technician</option>
+        <option value="project-manager">Project Manager</option>
+        <option value="estimator">Estimator</option>
+        <option value="carpenter">Carpenter</option>
+        <option value="electrician">Electrician</option>
+        <option value="plumber">Plumber</option>
+        <option value="painter">Painter</option>
+        <option value="laborer">General Laborer</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+      <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+      <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate</label>
+      <input type="number" name="hourlyRate" value={formData.hourlyRate || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
+      <input type="date" name="hireDate" value={formData.hireDate || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'active'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="on-leave">On Leave</option>
+      </select>
+    </div>
+  </div>
+);
+
+const EquipmentForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Equipment Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required placeholder="e.g., Air Mover" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+      <select name="type" value={formData.type || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Type</option>
+        <option value="air-mover">Air Mover</option>
+        <option value="dehumidifier">Dehumidifier</option>
+        <option value="air-scrubber">Air Scrubber</option>
+        <option value="hepa-vacuum">HEPA Vacuum</option>
+        <option value="truck">Truck/Vehicle</option>
+        <option value="trailer">Trailer</option>
+        <option value="generator">Generator</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+      <input type="text" name="serialNumber" value={formData.serialNumber || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+      <input type="date" name="purchaseDate" value={formData.purchaseDate || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Price</label>
+      <input type="number" name="purchasePrice" value={formData.purchasePrice || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Daily Rental Rate</label>
+      <input type="number" name="rentalRate" value={formData.rentalRate || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'available'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="available">Available</option>
+        <option value="in-use">In Use</option>
+        <option value="maintenance">Maintenance</option>
+        <option value="retired">Retired</option>
+      </select>
+    </div>
+  </div>
+);
+
+const MaterialForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Material Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required placeholder="e.g., Drywall 1/2 inch" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+      <select name="category" value={formData.category || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Category</option>
+        <option value="drywall">Drywall</option>
+        <option value="lumber">Lumber</option>
+        <option value="paint">Paint</option>
+        <option value="flooring">Flooring</option>
+        <option value="plumbing">Plumbing</option>
+        <option value="electrical">Electrical</option>
+        <option value="hardware">Hardware</option>
+        <option value="insulation">Insulation</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">SKU/Part Number</label>
+      <input type="text" name="sku" value={formData.sku || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+      <select name="unit" value={formData.unit || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Unit</option>
+        <option value="EA">Each</option>
+        <option value="SF">Square Foot</option>
+        <option value="LF">Linear Foot</option>
+        <option value="GAL">Gallon</option>
+        <option value="BOX">Box</option>
+        <option value="BAG">Bag</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Unit Cost</label>
+      <input type="number" name="unitCost" value={formData.unitCost || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Quantity in Stock</label>
+      <input type="number" name="quantity" value={formData.quantity || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Reorder Level</label>
+      <input type="number" name="reorderLevel" value={formData.reorderLevel || ''} onChange={handleChange} placeholder="Alert when stock reaches this level" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+  </div>
+);
+
+const ToolForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Tool Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required placeholder="e.g., Circular Saw" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+      <select name="type" value={formData.type || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Type</option>
+        <option value="power-tool">Power Tool</option>
+        <option value="hand-tool">Hand Tool</option>
+        <option value="measurement">Measurement</option>
+        <option value="safety">Safety Equipment</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+      <input type="text" name="serialNumber" value={formData.serialNumber || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+      <input type="date" name="purchaseDate" value={formData.purchaseDate || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Price</label>
+      <input type="number" name="purchasePrice" value={formData.purchasePrice || ''} onChange={handleChange} step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+      <input type="text" name="assignedTo" value={formData.assignedTo || ''} onChange={handleChange} placeholder="Employee name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+      <select name="status" value={formData.status || 'available'} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="available">Available</option>
+        <option value="in-use">In Use</option>
+        <option value="maintenance">Maintenance</option>
+        <option value="lost">Lost/Missing</option>
+      </select>
+    </div>
+  </div>
+);
+
+const VendorForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Name *</label>
+      <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Type</label>
+      <select name="type" value={formData.type || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Type</option>
+        <option value="supplier">Supplier</option>
+        <option value="subcontractor">Subcontractor</option>
+        <option value="equipment-rental">Equipment Rental</option>
+        <option value="service">Service Provider</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+      <input type="text" name="contactName" value={formData.contactName || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+      <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+      <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+      <input type="text" name="address" value={formData.address || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+      <input type="text" name="accountNumber" value={formData.accountNumber || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Payment Terms</label>
+      <select name="paymentTerms" value={formData.paymentTerms || ''} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Terms</option>
+        <option value="net-30">Net 30</option>
+        <option value="net-60">Net 60</option>
+        <option value="due-on-receipt">Due on Receipt</option>
+        <option value="cod">Cash on Delivery</option>
+      </select>
+    </div>
+  </div>
+);
+
+const PriceItemForm = ({ formData, handleChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Line Code *</label>
+      <input type="text" name="code" value={formData.code || ''} onChange={handleChange} required placeholder="e.g., DEMO-CRPT" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+      <select name="category" value={formData.category || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Category</option>
+        <option value="Emergency">Emergency</option>
+        <option value="Demolition">Demolition</option>
+        <option value="Equipment">Equipment</option>
+        <option value="Drywall">Drywall</option>
+        <option value="Painting">Painting</option>
+        <option value="Flooring">Flooring</option>
+        <option value="Tile">Tile</option>
+        <option value="Plumbing">Plumbing</option>
+        <option value="Electrical">Electrical</option>
+        <option value="Cleaning">Cleaning</option>
+      </select>
+    </div>
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+      <input type="text" name="description" value={formData.description || ''} onChange={handleChange} required placeholder="e.g., Remove Carpet" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+      <select name="unit" value={formData.unit || ''} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="">Select Unit</option>
+        <option value="SF">Square Foot</option>
+        <option value="LF">Linear Foot</option>
+        <option value="EA">Each</option>
+        <option value="HR">Hour</option>
+        <option value="DAY">Day</option>
+        <option value="CY">Cubic Yard</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+      <input type="number" name="price" value={formData.price || ''} onChange={handleChange} required step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" />
+    </div>
+  </div>
+);
+
+// Reusable Components
+const KPICard = ({ title, value, icon: Icon, color }) => {
+  const colorClasses = {
+    blue: 'bg-blue-50 border-blue-500 text-blue-700',
+    green: 'bg-green-50 border-green-500 text-green-700',
+    yellow: 'bg-yellow-50 border-yellow-500 text-yellow-700',
+    red: 'bg-red-50 border-red-500 text-red-700',
+    purple: 'bg-purple-50 border-purple-500 text-purple-700',
+    indigo: 'bg-indigo-50 border-indigo-500 text-indigo-700',
+    orange: 'bg-orange-50 border-orange-500 text-orange-700',
+    teal: 'bg-teal-50 border-teal-500 text-teal-700'
+  };
+
+  return (
+    <div className={`${colorClasses[color]} rounded-lg p-4 border-l-4`}>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-medium">{title}</p>
+        <Icon size={18} />
+      </div>
+      <p className="text-2xl font-bold text-gray-800">{value}</p>
+    </div>
+  );
+};
+
+const StatusBadge = ({ status }) => {
+  const statusConfig = {
+    active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
+    pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
+    completed: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Completed' },
+    overdue: { bg: 'bg-red-100', text: 'text-red-800', label: 'Overdue' },
+    paid: { bg: 'bg-green-100', text: 'text-green-800', label: 'Paid' },
+    approved: { bg: 'bg-green-100', text: 'text-green-800', label: 'Approved' },
+    rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Rejected' },
+    draft: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Draft' },
+    open: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Open' },
+    'in-progress': { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'In Progress' },
+    cancelled: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Cancelled' },
+    available: { bg: 'bg-green-100', text: 'text-green-800', label: 'Available' },
+    'in-use': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'In Use' },
+    maintenance: { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Maintenance' },
+    monitoring: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Monitoring' },
+    inactive: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Inactive' }
+  };
+
+  const config = statusConfig[status] || statusConfig.pending;
+
+  return (
+    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}>
+      {config.label}
+    </span>
+  );
+};
+
+const QuickActionButton = ({ icon: Icon, label, onClick, color = 'blue' }) => {
+  const colorClasses = {
+    blue: 'bg-blue-600 hover:bg-blue-700',
+    green: 'bg-green-600 hover:bg-green-700',
+    orange: 'bg-orange-600 hover:bg-orange-700',
+    purple: 'bg-purple-600 hover:bg-purple-700',
+    indigo: 'bg-indigo-600 hover:bg-indigo-700'
+  };
+
+  return (
+    <button 
+      onClick={onClick}
+      className={`${colorClasses[color]} text-white rounded-lg p-3 flex flex-col items-center justify-center space-y-2 transition hover:shadow-md`}
+    >
+      <Icon size={24} />
+      <span className="text-xs font-medium text-center">{label}</span>
+    </button>
+  );
+};
+
+export default BCSCompleteSystem;

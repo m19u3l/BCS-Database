@@ -1,0 +1,540 @@
+# 🏠 Insurance Restoration Documentation System
+
+## Competing with ServPro, PuroClean, and Major Restoration Companies
+
+This system provides **comprehensive, insurance-ready documentation** for water damage, fire damage, mold remediation, and reconstruction projects that meets industry standards and insurance requirements.
+
+---
+
+## 🎯 Key Features for Insurance Work
+
+### Industry Standards Compliance
+- ✅ **IICRC S500** - Water Damage Restoration Standard
+- ✅ **IICRC S520** - Mold Remediation Standard  
+- ✅ **Xactimate Compatible** - Line item coding and format
+- ✅ **Daily Documentation** - Required for insurance claims
+- ✅ **Moisture Tracking** - Complete drying logs
+- ✅ **Photo Documentation** - Before, during, after photos
+
+---
+
+## 📋 Complete Scope Documentation
+
+### REMEDIATION/DRYOUT PROJECTS
+
+#### Loss Categories (Water Damage)
+- **Category 1** (Clean Water): Burst pipes, supply line breaks
+- **Category 2** (Gray Water): Dishwasher overflow, washing machine overflow
+- **Category 3** (Black Water): Sewage backup, flooding, standing water
+
+#### Standard Documentation Includes:
+
+**1. Initial Assessment**
+```javascript
+POST /api/remediation/dryout
+{
+  "work_order_id": 1,
+  "project_number": "DRY-2025-001",
+  "loss_date": "2025-10-24",
+  "loss_type": "Water",
+  "loss_category": "Category 2",
+  "affected_areas": ["Kitchen", "Living Room", "Master Bedroom"],
+  "insurance_carrier": "State Farm",
+  "claim_number": "SF-123456789",
+  "adjuster_name": "John Smith",
+  "policy_number": "POL-987654"
+}
+```
+
+**2. Detailed Demolition Tracking**
+- Carpet removal (SF)
+- Pad removal (SF)
+- Baseboard removal (LF)
+- Drywall removal (SF) with cut height (2ft, 4ft, floor-to-ceiling)
+- Insulation removal (SF)
+- Ceiling removal (SF)
+- Cabinet removal (qty)
+- Fixture removal (qty)
+
+**3. Equipment Deployment Log**
+```javascript
+POST /api/remediation/dryout/1/equipment
+{
+  "equipment_type": "Dehumidifier",
+  "equipment_model": "Phoenix LGR 2800i",
+  "serial_number": "PHX-2800-1234",
+  "quantity": 2,
+  "location": "Living Room",
+  "rental_rate_per_day": 85.00
+}
+```
+
+**4. Daily Moisture Readings** (IICRC Required)
+```javascript
+POST /api/remediation/dryout/1/moisture-reading
+{
+  "room": "Living Room",
+  "material_type": "Drywall",
+  "location_description": "North wall, 3ft from corner",
+  "moisture_percentage": 18.5,
+  "target_moisture": 12.0,
+  "technician": "Mike Johnson"
+}
+```
+
+**5. Antimicrobial Treatment**
+- Product used (e.g., "Benefect Decon 30")
+- Areas treated
+- Application method
+- Date applied
+
+**6. Deodorization**
+- Method (Ozone, Hydroxyl, Thermal Fog)
+- Hours of treatment
+- Areas treated
+
+---
+
+### RECONSTRUCTION PROJECTS
+
+#### Complete Trade Breakdown
+
+**DEMOLITION** (All trades documented)
+```
+- Flooring: Carpet, Pad, Tile, Hardwood, Laminate, Vinyl
+- Walls: Drywall, Baseboard, Crown Molding, Wainscoting, Wall Tile
+- Ceiling: Drywall, Texture, Popcorn, Drop Ceiling
+- Cabinetry: Base Cabinets, Upper Cabinets, Countertops, Vanities
+- Plumbing: Toilets, Sinks, Faucets, Shower Valves, Tubs
+- Doors/Windows: Interior, Exterior, Sliding Doors
+- Insulation: Batt, Blown, Spray Foam
+```
+
+**RECONSTRUCTION** (Full scope by trade)
+
+**Framing & Structural**
+```javascript
+{
+  "wall_framing_lf": 120,
+  "wall_framing_rate": 8.50,
+  "ceiling_framing_sqft": 400,
+  "headers_installed": 3,
+  "blocking_installed_lf": 45
+}
+```
+
+**Plumbing**
+```javascript
+{
+  "plumbing_rough_in": "Complete bathroom and kitchen rough-in per code",
+  "water_lines_installed_lf": 85,
+  "drain_lines_installed_lf": 65,
+  "toilet_install_qty": 2,
+  "toilet_cost_ea": 350.00,
+  "sink_install_qty": 3,
+  "sink_cost_ea": 225.00,
+  "faucet_install_qty": 3,
+  "faucet_cost_ea": 185.00
+}
+```
+
+**Electrical**
+```javascript
+{
+  "electrical_rough_in": "Complete per NEC code",
+  "outlets_installed_qty": 24,
+  "switches_installed_qty": 12,
+  "light_fixtures_qty": 8,
+  "gfci_outlets_qty": 4
+}
+```
+
+**HVAC**
+```javascript
+{
+  "hvac_work_description": "Replace damaged ductwork and vents",
+  "ductwork_installed_lf": 45,
+  "vents_installed_qty": 6,
+  "returns_installed_qty": 2
+}
+```
+
+**Insulation**
+```javascript
+{
+  "batt_insulation_install_sqft": 1200,
+  "batt_insulation_rate": 1.25,
+  "blown_insulation_install_sqft": 800,
+  "spray_foam_install_sqft": 200
+}
+```
+
+**Drywall**
+```javascript
+{
+  "drywall_hang_sqft": 2400,
+  "drywall_hang_rate": 1.85,
+  "drywall_finish_sqft": 2400,
+  "drywall_finish_rate": 2.25,
+  "drywall_texture_sqft": 2400,
+  "drywall_texture_type": "Knockdown",
+  "corner_bead_lf": 280
+}
+```
+
+**Ceiling Work**
+```javascript
+{
+  "ceiling_drywall_hang_sqft": 950,
+  "ceiling_texture_sqft": 950,
+  "ceiling_texture_type": "Knockdown",
+  "drop_ceiling_install_sqft": 0
+}
+```
+
+**Painting**
+```javascript
+{
+  "primer_walls_sqft": 2400,
+  "primer_rate": 0.65,
+  "paint_walls_sqft": 2400,
+  "paint_walls_rate": 0.85,
+  "paint_walls_coats": 2,
+  "paint_ceiling_sqft": 950,
+  "paint_ceiling_rate": 0.75,
+  "paint_trim_lf": 380,
+  "paint_doors_qty": 6,
+  "paint_color_scheme": {
+    "Living Room": "SW Agreeable Gray",
+    "Kitchen": "SW Pure White",
+    "Master Bedroom": "SW Sea Salt"
+  }
+}
+```
+
+**Trim & Millwork**
+```javascript
+{
+  "baseboard_install_lf": 380,
+  "baseboard_type": "MDF 5.25\"",
+  "baseboard_rate": 4.50,
+  "crown_molding_install_lf": 120,
+  "crown_molding_rate": 6.75,
+  "door_casing_install_qty": 6,
+  "window_casing_install_qty": 8
+}
+```
+
+**Doors & Windows**
+```javascript
+{
+  "interior_door_install_qty": 5,
+  "interior_door_type": "6-panel hollow core",
+  "interior_door_cost_ea": 285.00,
+  "exterior_door_install_qty": 1,
+  "exterior_door_cost_ea": 950.00,
+  "window_install_qty": 3,
+  "window_type": "Vinyl double-hung",
+  "window_cost_ea": 450.00
+}
+```
+
+**Flooring** (All types documented)
+```javascript
+{
+  "carpet_install_sqft": 800,
+  "carpet_type": "Berber, 40oz",
+  "carpet_rate": 4.25,
+  "pad_install_sqft": 800,
+  "pad_type": "8lb rebond",
+  "pad_rate": 0.85,
+  
+  "tile_install_sqft": 450,
+  "tile_type": "Porcelain",
+  "tile_size": "12x24",
+  "tile_rate": 8.50,
+  "grout_color": "Warm Gray",
+  
+  "hardwood_install_sqft": 600,
+  "hardwood_type": "Red Oak 3.25\"",
+  "hardwood_finish": "Natural stain, satin poly",
+  "hardwood_rate": 12.00,
+  
+  "vinyl_install_sqft": 250,
+  "vinyl_type": "LVP - WPC core",
+  "vinyl_rate": 5.75,
+  
+  "transition_strips_qty": 12,
+  "floor_prep_sqft": 200,
+  "subfloor_repair_sqft": 85
+}
+```
+
+**Tile Work** (Detailed)
+```javascript
+{
+  "wall_tile_install_sqft": 180,
+  "wall_tile_type": "Ceramic subway 3x6",
+  "wall_tile_rate": 9.50,
+  "backsplash_install_sqft": 45,
+  "backsplash_type": "Glass mosaic",
+  "shower_tile_sqft": 220,
+  "tub_surround_sqft": 85
+}
+```
+
+**Cabinetry & Countertops**
+```javascript
+{
+  "base_cabinets_install_lf": 28,
+  "base_cabinet_type": "Semi-custom maple",
+  "base_cabinet_cost_lf": 185.00,
+  "upper_cabinets_install_lf": 24,
+  "upper_cabinet_cost_lf": 165.00,
+  "cabinet_hardware": "Brushed nickel pulls",
+  "hardware_cost": 450.00,
+  
+  "countertop_install_lf": 32,
+  "countertop_material": "Quartz - Level 2",
+  "countertop_cost_lf": 95.00,
+  "backsplash_height": 4,
+  
+  "vanity_install_qty": 2,
+  "vanity_size": "36\" and 24\"",
+  "vanity_cost_ea": 650.00,
+  "vanity_top_material": "Quartz",
+  "vanity_top_cost_ea": 425.00
+}
+```
+
+**Specialty Work**
+```javascript
+{
+  "shower_pan_install_qty": 1,
+  "shower_door_install_qty": 1,
+  "shower_door_type": "Frameless glass",
+  "tub_install_qty": 1,
+  "tub_type": "Acrylic alcove 60x30",
+  "tub_cost_ea": 650.00
+}
+```
+
+---
+
+## 💰 Xactimate-Style Estimates
+
+### Generate Insurance Estimates
+
+```bash
+GET /api/remediation/dryout/1/xactimate-format
+GET /api/remediation/reconstruction/1/xactimate-estimate
+```
+
+**Output Format:**
+```json
+{
+  "project_number": "RECON-2025-001",
+  "claim_number": "SF-123456789",
+  "line_items": [
+    {
+      "code": "DEM-CARPT",
+      "category": "Demolition",
+      "description": "Remove carpet",
+      "qty": 850,
+      "unit": "SF",
+      "rate": 0.75,
+      "total": "637.50"
+    },
+    {
+      "code": "FLR-CRPT",
+      "category": "Flooring",
+      "description": "Install carpet - Berber, 40oz",
+      "qty": 850,
+      "unit": "SF",
+      "rate": 4.25,
+      "total": "3612.50"
+    }
+  ],
+  "summary": {
+    "subtotal": "45750.00",
+    "overhead": "10% = $4575.00",
+    "profit": "10% = $5032.50",
+    "total": "55357.50"
+  }
+}
+```
+
+---
+
+## 📸 Photo Documentation
+
+### Required Photos for Insurance
+```javascript
+POST /api/remediation/dryout/1/photos
+{
+  "photo_type": "Before",
+  "room_location": "Living Room",
+  "description": "Water damage to carpet and drywall - north wall",
+  "file_path": "/photos/project-1/before-living-room-001.jpg",
+  "taken_by": "Mike Johnson"
+}
+```
+
+**Photo Types:**
+- Before
+- During
+- After
+- Thermal (infrared)
+- Moisture meter readings
+- Equipment placement
+- Demo progress
+- Reconstruction progress
+
+---
+
+## 📊 Daily Logs (Insurance Required)
+
+```javascript
+POST /api/remediation/dryout/1/daily-log
+{
+  "log_date": "2025-10-24",
+  "technician_name": "Mike Johnson",
+  "work_performed": "Initial extraction, placed 3 air movers and 2 dehumidifiers. Removed wet carpet pad in living room and master bedroom.",
+  "equipment_checked": [
+    "Air Mover #1 - Running",
+    "Air Mover #2 - Running",
+    "Dehumidifier #1 - 85% RH to 45% RH"
+  ],
+  "moisture_readings": [
+    {"location": "LR North Wall", "reading": 24.5},
+    {"location": "LR East Wall", "reading": 18.2}
+  ],
+  "crew_members": ["Mike Johnson", "Tom Martinez"],
+  "hours_worked": 6.5,
+  "weather_conditions": "Clear, 72°F",
+  "site_conditions": "Access via front door, parking on street",
+  "issues_encountered": "Client unavailable, accessed via lockbox",
+  "next_visit_planned": "2025-10-25",
+  "notes": "Homeowner requested we contact before 8am visits"
+}
+```
+
+---
+
+## 🔧 Labor Tracking by Trade
+
+```javascript
+{
+  "labor_breakdown": [
+    {"trade": "General Contractor", "hours": 40, "rate": 95, "total": 3800},
+    {"trade": "Carpenter", "hours": 80, "rate": 85, "total": 6800},
+    {"trade": "Electrician", "hours": 24, "rate": 95, "total": 2280},
+    {"trade": "Plumber", "hours": 32, "rate": 95, "total": 3040},
+    {"trade": "Drywall Hanger", "hours": 48, "rate": 65, "total": 3120},
+    {"trade": "Taper/Finisher", "hours": 56, "rate": 70, "total": 3920},
+    {"trade": "Painter", "hours": 72, "rate": 55, "total": 3960},
+    {"trade": "Tile Setter", "hours": 40, "rate": 75, "total": 3000},
+    {"trade": "Flooring Installer", "hours": 56, "rate": 65, "total": 3640}
+  ]
+}
+```
+
+---
+
+## 📝 Permits & Inspections
+
+```javascript
+{
+  "permits_required": ["Building", "Electrical", "Plumbing"],
+  "permit_numbers": "B-2025-1234, E-2025-5678, P-2025-9012",
+  "inspections_passed": {
+    "Rough-in Inspection": "2025-11-15",
+    "Insulation Inspection": "2025-11-18",
+    "Final Inspection": "2025-12-10"
+  },
+  "final_inspection_date": "2025-12-10",
+  "certificate_of_occupancy": true
+}
+```
+
+---
+
+## 🏆 Competitive Advantages
+
+### vs ServPro / PuroClean
+
+**✅ What You Have:**
+1. **Complete Digital Documentation** - All data in one system
+2. **Automated Xactimate Formatting** - Export ready for adjusters
+3. **Real-time Moisture Tracking** - Daily logs with compliance
+4. **Comprehensive Scope** - Every trade, every material documented
+5. **Photo Management** - Organized before/during/after
+6. **Cost Transparency** - Line-item breakdown with O&P
+7. **Change Order Tracking** - Document scope changes
+8. **Certificate Generation** - Professional completion docs
+
+**📊 Reporting Features:**
+- Detailed scope of work PDFs
+- Xactimate-compatible estimates
+- Daily progress reports
+- Final completion certificates
+- Warranty documentation
+
+---
+
+## 🎯 Typical Workflow
+
+### Water Damage Project
+
+1. **Emergency Call** → Create Work Order
+2. **On-site Assessment** → Create Dryout Project
+3. **Document Loss** → Photos, initial readings
+4. **Equipment Deployment** → Log all equipment
+5. **Daily Monitoring** → Moisture readings + photos
+6. **Demolition** → Document all demo work
+7. **Drying Complete** → Final readings, certificate
+8. **Create Reconstruction Project** → Link to dryout
+9. **Build Estimate** → Xactimate format
+10. **Track Progress** → Daily logs, photos
+11. **Final Walkthrough** → Completion certificate
+12. **Invoice** → Export to PDF, email
+
+---
+
+## 💡 Pro Tips
+
+### For Insurance Adjusters
+- Always use Xactimate-compatible line codes
+- Document EVERYTHING with photos
+- Daily logs are your protection
+- Keep moisture readings organized by date
+- Track equipment rental days precisely
+
+### For Estimates
+- Include O&P (Overhead & Profit) - typically 20%
+- Show line-item breakdown
+- Reference Xactimate codes where possible
+- Include all permits and inspections
+- Document warranties
+
+### For Documentation
+- Take MORE photos than you think you need
+- Date/time stamp everything
+- Get client signatures on scope changes
+- Keep daily logs even if "nothing happens"
+- Document conversations with adjusters
+
+---
+
+## 📞 Support & Training
+
+Need help setting up for insurance work? The system is designed to handle:
+- Multi-room projects
+- Complex demolition tracking
+- All building trades
+- Material quantity tracking
+- Labor hour tracking
+- Subcontractor management
+- Change order documentation
+
+**You're now equipped to compete with the big restoration companies! 🚀**

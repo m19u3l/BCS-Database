@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dryout & Remediation Monitoring</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .detail-card { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .moisture-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .reading-item { border: 1px solid #ddd; padding: 10px; border-radius: 4px; }
+        .reading-item strong { color: #d9534f; } /* High moisture warning color */
+        .header-title { border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <h1>🛠️ Active Dryout Monitoring</h1>
+
+    <label for="project-selector">Select Active Project:</label>
+    <select id="project-selector" onchange="loadProjectData(this.value)">
+        <option value="">-- Load a Project --</option>
+        </select>
+    
+    <hr>
+    
+    <div id="project-details" style="display: none;">
+        <h2 class="header-title" id="project-name">Project: [Select Project to View Details]</h2>
+
+        <div class="detail-card">
+            <h3>Moisture Readings (Last 48 Hrs)</h3>
+            <div id="moisture-readings-log" class="moisture-grid">
+                <div class="reading-item">
+                    <p><strong>Room:</strong> Living Room, SW Wall</p>
+                    <p><strong>Material:</strong> Drywall</p>
+                    <p><strong>Reading:</strong> <span style="font-size: 1.5em;">18.5%</span> (Target: 10%)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h3>Equipment On-Site</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th>Type</th>
+                        <th>Model</th>
+                        <th>Qty</th>
+                        <th>Days Used</th>
+                    </tr>
+                </thead>
+                <tbody id="equipment-usage-body">
+                    <tr><td>LGR Dehumidifier</td><td>DH-2000</td><td>1</td><td>5</td></tr>
+                    <tr><td>Air Mover</td><td>Turboforce 100</td><td>4</td><td>5</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="detail-card">
+            <h3>Xactimate Scope Summary (Reconstruction)</h3>
+            <ul id="xactimate-summary-list">
+                <li>DRY FIN (Drywall Finish): <span>250 SF</span></li>
+                <li>WTR WID (Water extraction, industrial DH): <span>5 Days</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchActiveProjects);
+
+        async function fetchActiveProjects() {
+            // NOTE: You would need a new API endpoint to list active dryout projects.
+            // For this example, we'll use a placeholder.
+            const selector = document.getElementById('project-selector');
+            const projects = [
+                { id: 1, name: "Proj A: 123 Main St (Active)" },
+                { id: 2, name: "Proj B: 456 Elm Ave (Monitoring)" },
+            ];
+
+            projects.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.name;
+                selector.appendChild(option);
+            });
+        }
+
+        async function loadProjectData(projectId) {
+            const detailsDiv = document.getElementById('project-details');
+            if (!projectId) {
+                detailsDiv.style.display = 'none';
+                return;
+            }
+            
+            // NOTE: You would need a new API endpoint, e.g., /api/v1/remediation-dryout/:projectId/details
+            // We'll just display the section for now.
+
+            document.getElementById('project-name').textContent = `Project: ${document.getElementById('project-selector').options[document.getElementById('project-selector').selectedIndex].text}`;
+            detailsDiv.style.display = 'block';
+
+            // Here, you would fetch all data points (moisture, equipment, Xactimate usage)
+            // for the selected projectId and populate the elements.
+        }
+    </script>
+</body>
+</html>

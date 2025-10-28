@@ -1,0 +1,160 @@
+\import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Utility for paths in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let db;
+// Export this promise so other files (like the routes) can wait for the DB to be ready
+export const dbPromise = initDatabase();
+export { db }; // Exporting the database instance directly for use in routes
+
+/**
+ * Initializes the SQLite database, creates all necessary tables,
+ * and inserts company settings and sample data.
+ * This is the function called by server.js at startup.
+ */
+export async function initDatabase() {
+  try {
+    db = await open({
+      filename: path.join(__dirname, 'invoice.db'), // Using local path to invoice.db
+      driver: sqlite3.Database
+    });
+
+    // Set up database logging for debugging
+    db.on('trace', (sql) => console.log('SQL:', sql));
+
+    console.log('--- Initializing Database Schema ---');
+
+    await db.exec(`
+    -- ===================================
+    -- CORE INVOICING & MANAGEMENT TABLES
+    -- ===================================
+      
+    -- Clients table
+    CREATE TABLE IF NOT EXISTS clients (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      address TEXT,
+      city TEXT,
+      state TEXT,
+      zip TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Settings table MUST be present for the configuration logic to work
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT NOT NULL UNIQUE,
+      value TEXT
+    );
+
+    -- Price Categories table (used for filtering/UI)
+    CREATE TABLE IF NOT EXISTS price_categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category_code TEXT NOT NULL UNIQUE, -- e.g., 'DRY', 'WTR'
+      category_name TEXT NOT NULL,       -- e.g., 'Drywall', 'Water Mitigation'
+      sort_order INTEGER DEFAULT 99
+    );
+
+    -- Price List (Line Item) Table - CRITICAL for calculation
+    CREATE TABLE IF NOT EXISTS price_list (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      line_code TEXT NOT NULL UNIQUE,           -- e.g., 'DRY-RMO'
+      description TEXT NOT NULL,
+      category TEXT,                            -- foreign key to price_categories.category_code
+      subcategory TEXT,
+      unit_of_measure TEXT,                     -- e.g., 'SF', 'LF', 'EA'
+      labor_cost REAL DEFAULT 0.0,
+      material_cost REAL DEFAULT 0.0,
+      equipment_cost REAL DEFAULT 0.0,
+      unit_price REAL DEFAULT 0.0,              -- Should be (Labor + Material + Equipment)
+      notes TEXT,
+      active BOOLEAN DEFAULT 1,                 -- 1 for active, 0 for deactivated
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Work Order/Job Management Tables (basic structure)
+    CREATE TABLE IF NOT EXISTS jobs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      client_id INTEGER,
+      job_name TEXT NOT NULL,
+      status TEXT DEFAULT 'pending', -- pending, in-progress, completed, cancelled
+      start_date TEXT,
+      FOREIGN KEY(client_id) REFERENCES clients(id)
+    );
+      
+    `);
+
+    // --- INITIAL DATA INSERTION ---
+    
+    // 1. Initial Settings
+    const initialSettings = [
+      { key: 'company_name', value: 'BCS Construction Services' },
+      { key: 'tax_rate', value: '0.08' },
+      { key: 'default_currency', value: 'USD' }
+    ];
+
+    for (const setting of initialSettings) {
+      const exists = await db.get("SELECT 1 FROM settings WHERE key = ?", setting.key);
+      if (!exists) {
+        await db.run("INSERT INTO settings (key, value) VALUES (?, ?)", setting.key, setting.value);
+      }
+    }
+
+    // 2. Sample Price Categories
+    const sampleCategories = await db.all("SELECT * FROM price_categories");
+    if (sampleCategories.length === 0) {
+      await db.run(`INSERT INTO price_categories (category_code, category_name, sort_order) VALUES
+        ('DEMO', 'Demolition', 10),
+        ('DRWL', 'Drywall & Finishes', 20),
+        ('WTR', 'Water Mitigation', 30),
+        ('FRMG', 'Framing', 40)
+      `);
+    }
+
+    // 3. Sample Price List Items (Line Items)
+    const samplePriceList = await db.all("SELECT * FROM price_list");
+    if (samplePriceList.length === 0) {
+      await db.run(`INSERT INTO price_list (line_code, description, category, unit_of_measure, labor_cost, material_cost, equipment_cost, unit_price) VALUES
+      ('DRY-RMO', 'Remove & dispose of drywall (0-2 ft cut)', 'DEMO', 'LF', 0.75, 0.05, 0.05, 0.85),
+      ('BBD-RMO', 'Remove & dispose of baseboard/trim', 'DEMO', 'LF', 0.45, 0.03, 0.02, 0.50),
+      ('DEHU-L', 'Dehumidifier, Large (Rental, 24HR)', 'WTR', 'Day', 0.00, 0.00, 65.00, 65.00),
+      ('FAN-AXL', 'Air Mover, Axial (Rental, 24HR)', 'WTR', 'Day', 0.00, 0.00, 18.00, 18.00),
+      ('DRW-HNG', 'Hang 1/2" drywall', 'DRWL', 'SF', 1.20, 0.50, 0.00, 1.70),
+      ('DRW-FIN3', 'Drywall Finish (Level 3)', 'DRWL', 'SF', 0.80, 0.10, 0.00, 0.90),
+      ('FRM-WALL', 'Wall framing (studs, plates, blocking)', 'FRMG', 'LF', 8.50, 4.00, 0.50, 13.00)`);
+    }
+
+    // 4. Sample Client
+    const sampleClients = await db.all("SELECT * FROM clients");
+    if (sampleClients.length === 0) {
+      await db.run(
+        `INSERT INTO clients (name, email, phone, address, city, state, zip)
+          VALUES
+          ('Acme Properties', 'acme@properties.com', '(555) 123-4567', '456 Oak Ln', 'San Jose', 'CA', '95101')`
+      );
+    }
+
+
+    console.log('✅ Sample data inserted');
+    return db;
+
+  } catch (error) {
+    console.error('CRITICAL: Database initialization failed!', error.message);
+    throw error;
+  }
+}
+
+// Export a helper to get the database instance after initialization
+export async function getDb() {
+  if (!db) {
+    db = await dbPromise;
+  }
+  return db;
+}

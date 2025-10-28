@@ -1,0 +1,462 @@
+i SF', price: 0.50, labor: 0.45, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-CPAD', description: 'Remove Carpet Pad', category: 'Demolition', unit: 'SF', price: 0.40, labor: 0.35, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-TACK', description: 'Remove Tack Strips', category: 'Demolition', unit: 'LF', price: 0.70, labor: 0.65, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-HDWD', description: 'Remove Hardwood Flooring', category: 'Demolition', unit: 'SF', price: 1.35, labor: 1.25, material: 0, equipment: 0.10 },
+    { lineCode: 'DEMO-SUBF', description: 'Remove Subfloor', category: 'Demolition', unit: 'SF', price: 1.60, labor: 1.45, material: 0, equipment: 0.15 },
+    
+    // Demolition - Walls
+    { lineCode: 'DEMO-DW2', description: 'Remove Drywall - 2ft Height', category: 'Demolition', unit: 'SF', price: 0.70, labor: 0.65, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-DW4', description: 'Remove Drywall - 4ft Height', category: 'Demolition', unit: 'SF', price: 0.60, labor: 0.55, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-DWFL', description: 'Remove Drywall - Full Height', category: 'Demolition', unit: 'SF', price: 0.50, labor: 0.45, material: 0, equipment: 0.05 },
+    { lineCode: 'DEMO-BASE', description: 'Remove Baseboard', category: 'Demolition', unit: 'LF', price: 0.65, labor: 0.65, material: 0, equipment: 0 },
+    
+    // Equipment & Monitoring
+    { lineCode: 'EQUIP-AMOV', description: 'Air Mover - Per Day', category: 'Equipment', unit: 'DAY', price: 26.00, labor: 8.00, material: 0, equipment: 18 },
+    { lineCode: 'EQUIP-DEHM', description: 'Dehumidifier - Per Day', category: 'Equipment', unit: 'DAY', price: 45.00, labor: 10.00, material: 0, equipment: 35 },
+    { lineCode: 'EQUIP-HEPA', description: 'HEPA Air Scrubber - Per Day', category: 'Equipment', unit: 'DAY', price: 45.00, labor: 8.00, material: 12, equipment: 25 },
+    { lineCode: 'MNTR-VISI', description: 'Daily Site Visit', category: 'Equipment', unit: 'EA', price: 55.00, labor: 55.00, material: 0, equipment: 0 },
+    
+    // Cleaning & Treatment
+    { lineCode: 'CLEN-ANTM', description: 'Antimicrobial Application', category: 'Cleaning', unit: 'SF', price: 0.45, labor: 0.25, material: 0.15, equipment: 0.05 },
+    { lineCode: 'CLEN-DIS3', description: 'Disinfectant Application - Cat 3', category: 'Cleaning', unit: 'SF', price: 0.90, labor: 0.55, material: 0.25, equipment: 0.10 },
+    
+    // Debris Removal
+    { lineCode: 'HAUL-LOAD', description: 'Load Debris', category: 'Disposal', unit: 'CY', price: 12.00, labor: 12.00, material: 0, equipment: 0 },
+    { lineCode: 'HAUL-HAUL', description: 'Haul Debris', category: 'Disposal', unit: 'CY', price: 23.00, labor: 18.00, material: 0, equipment: 5 },
+    { lineCode: 'HAUL-DUMP', description: 'Dump Fees', category: 'Disposal', unit: 'TON', price: 75.00, labor: 0, material: 75.00, equipment: 0 },
+    
+    // Reconstruction - Framing
+    { lineCode: 'CARP-2X4', description: 'Install 2x4 Stud', category: 'Carpentry', unit: 'LF', price: 2.90, labor: 1.85, material: 0.95, equipment: 0.10 },
+    { lineCode: 'CARP-ISUB', description: 'Install Subfloor', category: 'Carpentry', unit: 'SF', price: 3.40, labor: 1.85, material: 1.45, equipment: 0.10 },
+    
+    // Drywall
+    { lineCode: 'DWAL-H12', description: 'Hang Drywall 1/2"', category: 'Drywall', unit: 'SF', price: 1.05, labor: 0.55, material: 0.45, equipment: 0.05 },
+    { lineCode: 'DWAL-TM4', description: 'Tape & Mud - Level 4', category: 'Drywall', unit: 'SF', price: 1.03, labor: 0.85, material: 0.18, equipment: 0 },
+    { lineCode: 'DWAL-TKND', description: 'Texture - Knockdown', category: 'Drywall', unit: 'SF', price: 0.65, labor: 0.45, material: 0.15, equipment: 0.05 },
+    
+    // Painting
+    { lineCode: 'PINT-PRMW', description: 'Prime Walls', category: 'Painting', unit: 'SF', price: 0.55, labor: 0.35, material: 0.18, equipment: 0.02 },
+    { lineCode: 'PINT-WL2', description: 'Paint Walls - 2 Coats', category: 'Painting', unit: 'SF', price: 1.16, labor: 0.75, material: 0.38, equipment: 0.03 },
+    
+    // Trim
+    { lineCode: 'TRIM-BASE', description: 'Install Baseboard', category: 'Trim', unit: 'LF', price: 4.20, labor: 2.25, material: 1.85, equipment: 0.10 },
+    
+    // Flooring
+    { lineCode: 'FLOR-CRPT', description: 'Install Carpet with Pad', category: 'Flooring', unit: 'SF', price: 4.20, labor: 1.25, material: 2.85, equipment: 0.10 },
+    { lineCode: 'TILE-CERM', description: 'Install Ceramic Tile Floor', category: 'Flooring', unit: 'SF', price: 4.85, labor: 4.50, material: 0, equipment: 0.35 },
+    { lineCode: 'FLOR-HDWD', description: 'Install Hardwood Flooring', category: 'Flooring', unit: 'SF', price: 4.95, labor: 4.50, material: 0, equipment: 0.45 },
+    { lineCode: 'FLOR-LVP', description: 'Install LVP Flooring', category: 'Flooring', unit: 'SF', price: 2.60, labor: 2.45, material: 0, equipment: 0.15 },
+    
+    // Final Cleanup
+    { lineCode: 'FINL-VACF', description: 'Vacuum Entire Area', category: 'Cleanup', unit: 'SF', price: 0.15, labor: 0.12, material: 0, equipment: 0.03 },
+    { lineCode: 'FINL-WALK', description: 'Final Walk-Through Inspection', category: 'Cleanup', unit: 'EA', price: 85.00, labor: 85.00, material: 0, equipment: 0 }
+  ];
+
+  const categories = ['ALL', ...new Set(priceDatabase.map(item => item.category))];
+
+  const filteredPrices = priceDatabase.filter(item => {
+    const matchesSearch = item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.lineCode.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const addLineItem = (priceItem) => {
+    const newItem = {
+      id: Date.now(),
+      ...priceItem,
+      quantity: 1
+    };
+    setQuoteItems([...quoteItems, newItem]);
+  };
+
+  const updateQuantity = (id, quantity) => {
+    setQuoteItems(quoteItems.map(item => 
+      item.id === id ? { ...item, quantity: parseFloat(quantity) || 0 } : item
+    ));
+  };
+
+  const removeItem = (id) => {
+    setQuoteItems(quoteItems.filter(item => item.id !== id));
+  };
+
+  const calculateTotals = () => {
+    const subtotal = quoteItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const laborTotal = quoteItems.reduce((sum, item) => sum + (item.labor * item.quantity), 0);
+    
+    // Tool depreciation on labor
+    const toolCost = laborTotal * (toolDepreciation / 100);
+    
+    // Overhead on subtotal + tool depreciation
+    const overheadAmount = (subtotal + toolCost) * (overheadPercent / 100);
+    
+    // Profit on everything
+    const profitAmount = (subtotal + toolCost + overheadAmount) * (profitPercent / 100);
+    
+    const total = subtotal + toolCost + overheadAmount + profitAmount;
+    
+    return {
+      subtotal,
+      laborTotal,
+      toolCost,
+      overheadAmount,
+      profitAmount,
+      total
+    };
+  };
+
+  const totals = calculateTotals();
+
+  const generatePDF = () => {
+    alert('PDF generation would be implemented here using a library like jsPDF or by sending to your backend.');
+  };
+
+  const saveQuote = () => {
+    const quote = {
+      customerInfo,
+      items: quoteItems,
+      totals,
+      overheadPercent,
+      profitPercent,
+      toolDepreciation,
+      createdAt: new Date().toISOString()
+    };
+    console.log('Saving quote:', quote);
+    alert('Quote saved! (In production, this would save to your database)');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Building Care Solutions</h1>
+              <p className="text-gray-600 mt-1">Professional Quote Generator</p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Quote Total</div>
+              <div className="text-3xl font-bold text-blue-600">
+                ${totals.total.toFixed(2)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Customer Info & Settings */}
+          <div className="space-y-6">
+            {/* Customer Information */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <FileText className="mr-2" size={20} />
+                Customer Information
+              </h2>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Customer Name"
+                  value={customerInfo.name}
+                  onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  placeholder="Property Address"
+                  value={customerInfo.address}
+                  onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone"
+                  value={customerInfo.phone}
+                  onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={customerInfo.email}
+                  onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="date"
+                  placeholder="Loss Date"
+                  value={customerInfo.lossDate}
+                  onChange={(e) => setCustomerInfo({...customerInfo, lossDate: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  placeholder="Project Number"
+                  value={customerInfo.projectNumber}
+                  onChange={(e) => setCustomerInfo({...customerInfo, projectNumber: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Overhead & Profit Settings */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Calculator className="mr-2" size={20} />
+                Pricing Settings
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Overhead %
+                  </label>
+                  <input
+                    type="number"
+                    value={overheadPercent}
+                    onChange={(e) => setOverheadPercent(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profit %
+                  </label>
+                  <input
+                    type="number"
+                    value={profitPercent}
+                    onChange={(e) => setProfitPercent(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tool Depreciation %
+                  </label>
+                  <input
+                    type="number"
+                    value={toolDepreciation}
+                    onChange={(e) => setToolDepreciation(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Totals Breakdown */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <DollarSign className="mr-2" size={20} />
+                Quote Breakdown
+              </h2>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-semibold">${totals.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 flex items-center">
+                    <Wrench size={14} className="mr-1" />
+                    Tool Depreciation ({toolDepreciation}%):
+                  </span>
+                  <span className="font-semibold">${totals.toolCost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Overhead ({overheadPercent}%):</span>
+                  <span className="font-semibold">${totals.overheadAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 flex items-center">
+                    <TrendingUp size={14} className="mr-1" />
+                    Profit ({profitPercent}%):
+                  </span>
+                  <span className="font-semibold">${totals.profitAmount.toFixed(2)}</span>
+                </div>
+                <div className="border-t-2 border-gray-300 pt-2 mt-2">
+                  <div className="flex justify-between">
+                    <span className="font-bold text-lg">Total:</span>
+                    <span className="font-bold text-lg text-blue-600">
+                      ${totals.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 space-y-2">
+                <button
+                  onClick={saveQuote}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
+                >
+                  <Save className="mr-2" size={18} />
+                  Save Quote
+                </button>
+                <button
+                  onClick={generatePDF}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center"
+                >
+                  <Printer className="mr-2" size={18} />
+                  Generate PDF
+                </button>
+                <button
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition flex items-center justify-center"
+                >
+                  <Mail className="mr-2" size={18} />
+                  Email Quote
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Middle Column - Price List */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Price List</h2>
+              <button
+                onClick={() => setShowPriceList(!showPriceList)}
+                className="text-blue-600 hover:text-blue-700 text-sm"
+              >
+                {showPriceList ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            {showPriceList && (
+              <>
+                {/* Search */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                    <input
+                      type="text"
+                      placeholder="Search items..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Filter */}
+                <div className="mb-4">
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Price Items */}
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {filteredPrices.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-gray-200 rounded-lg p-3 hover:bg-blue-50 cursor-pointer transition"
+                      onClick={() => addLineItem(item)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-gray-900">
+                            {item.description}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.lineCode} | {item.category}
+                          </div>
+                        </div>
+                        <div className="text-right ml-2">
+                          <div className="font-bold text-blue-600">
+                            ${item.price.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            per {item.unit}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addLineItem(item);
+                        }}
+                        className="mt-2 w-full bg-blue-100 text-blue-700 py-1 px-2 rounded text-xs hover:bg-blue-200 transition flex items-center justify-center"
+                      >
+                        <Plus size={14} className="mr-1" />
+                        Add to Quote
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Right Column - Quote Items */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Quote Items ({quoteItems.length})
+            </h2>
+
+            {quoteItems.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <FileText size={48} className="mx-auto mb-3 opacity-50" />
+                <p>No items added yet</p>
+                <p className="text-sm mt-1">Search and add items from the price list</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[800px] overflow-y-auto">
+                {quoteItems.map((item) => (
+                  <div key={item.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm">{item.description}</div>
+                        <div className="text-xs text-gray-500">{item.lineCode}</div>
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-red-500 hover:text-red-700 ml-2"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2 items-center">
+                      <div>
+                        <label className="text-xs text-gray-500">Quantity</label>
+                        <input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateQuantity(item.id, e.target.value)}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                          step="0.1"
+                          min="0"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-gray-500">Unit Price</div>
+                        <div className="text-sm font-semibold">
+                          ${item.price.toFixed(2)}/{item.unit}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Line Total</div>
+                        <div className="text-sm font-bold text-blue-600">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default QuoteGenerator;
